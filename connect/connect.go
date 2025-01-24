@@ -1,6 +1,7 @@
 package connect
 
 import (
+	"github.com/busy-cloud/boat/log"
 	"github.com/busy-cloud/boat/mqtt"
 	paho "github.com/eclipse/paho.mqtt.golang"
 	"github.com/panjf2000/gnet/v2"
@@ -39,12 +40,17 @@ func Startup() error {
 		IdStart:  0,
 		IdEnd:    4,
 	}
-	err := gnet.Run(&h, "udp://:60000",
-		gnet.WithMulticore(true),
-		gnet.WithLockOSThread(true),
-		gnet.WithTCPKeepAlive(30*time.Second),
-		gnet.WithTCPNoDelay(gnet.TCPDelay),
-		gnet.WithTicker(true),
-	)
-	return err
+	go func() {
+		err := gnet.Run(&h, "udp://:60000",
+			gnet.WithMulticore(true),
+			gnet.WithLockOSThread(true),
+			gnet.WithTCPKeepAlive(30*time.Second),
+			gnet.WithTCPNoDelay(gnet.TCPDelay),
+			//gnet.WithTicker(true),
+		)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
+	return nil
 }
