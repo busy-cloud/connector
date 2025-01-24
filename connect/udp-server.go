@@ -1,7 +1,6 @@
 package connect
 
 import (
-	"encoding/hex"
 	"fmt"
 	"github.com/busy-cloud/boat/log"
 	"github.com/busy-cloud/boat/mqtt"
@@ -10,21 +9,25 @@ import (
 )
 
 type UdpServer struct {
-	ServerId       string
-	IdStart, IdEnd int
+	*Connect
+	*Server
 
 	buf [4096]byte
 }
 
 func (h *UdpServer) OnBoot(eng gnet.Engine) (action gnet.Action) {
+	h.Server.opened = true
+	h.Server.engine = eng
 	return gnet.None
 }
 
 func (h *UdpServer) OnShutdown(eng gnet.Engine) {
+	h.Server.opened = true
 }
 
 func (h *UdpServer) OnOpen(c gnet.Conn) (out []byte, action gnet.Action) {
 	log.Println("UdpServer OnOpen")
+	h.connected = true
 	return nil, gnet.None
 }
 
@@ -34,25 +37,18 @@ func (h *UdpServer) OnClose(c gnet.Conn, err error) (action gnet.Action) {
 }
 
 func (h *UdpServer) OnTraffic(c gnet.Conn) (action gnet.Action) {
+	h.connected = true
+
 	n, e := c.Read(h.buf[:])
 	if e != nil {
 		return gnet.Close
 	}
 
-	//验证合法性
-	if n < h.IdEnd {
-		_, _ = c.Write([]byte("packet too short"))
-		return gnet.Close
-	}
-
-	//id := string(h.buf[h.IdStart:h.IdEnd])
-	id := hex.EncodeToString(h.buf[h.IdStart:h.IdEnd])
-
-	topic := fmt.Sprintf("tunnel/%s/%s/up", id, h.ServerId)
+	topic := fmt.Sprintf("link/%s/up", h.Id)
 	mqtt.Client.Publish(topic, 0, false, h.buf[:n])
 
 	//保存连接
-	connections.LoadOrStore(id, c)
+	connections.LoadOrStore(h.Id, c)
 
 	return gnet.None
 }

@@ -5,29 +5,44 @@ import (
 	"github.com/busy-cloud/boat/mqtt"
 	"github.com/panjf2000/gnet/v2"
 	"regexp"
+	"sync/atomic"
 	"time"
 )
 
 var idReg = regexp.MustCompile(`^\w{2,128}`)
 
 type TcpServer struct {
-	ServerId string
+	*Connect
+	*Server
 
-	buf [4096]byte
+	buf   [4096]byte
+	count atomic.Int64
+
+	regex *regexp.Regexp
 }
 
 func (h *TcpServer) OnBoot(eng gnet.Engine) (action gnet.Action) {
+	h.Server.opened = true
+	h.Server.engine = eng
 	return gnet.None
 }
 
 func (h *TcpServer) OnShutdown(eng gnet.Engine) {
+	h.Server.opened = true
 }
 
 func (h *TcpServer) OnOpen(c gnet.Conn) (out []byte, action gnet.Action) {
+	h.count.Add(1)
+	h.connected = true
 	return nil, gnet.None
 }
 
 func (h *TcpServer) OnClose(c gnet.Conn, err error) (action gnet.Action) {
+	n := h.count.Add(-1)
+	if n <= 0 {
+		h.Server.connected = false
+	}
+
 	ctx := c.Context()
 	if ctx == nil {
 		return gnet.None
@@ -40,7 +55,7 @@ func (h *TcpServer) OnClose(c gnet.Conn, err error) (action gnet.Action) {
 	id := cc["id"].(string)
 
 	//下线
-	topic := fmt.Sprintf("tunnel/%s/%s/close", id, h.ServerId)
+	topic := fmt.Sprintf("link/%s/%s/close", id, h.Id)
 	mqtt.Client.Publish(topic, 0, false, err.Error())
 
 	//从池中清除
@@ -60,8 +75,22 @@ func (h *TcpServer) OnTraffic(c gnet.Conn) (action gnet.Action) {
 		}
 		id := string(h.buf[:n])
 
+		if h.regex == nil {
+			if h.IdOptions != nil && h.IdOptions.Regex != "" {
+				h.regex, e = regexp.Compile(h.IdOptions.Regex) //重复编译
+				if e != nil {
+					//_, _ = c.Write([]byte("id regex compile error"))
+					//return gnet.Close
+				} else {
+					h.regex = idReg
+				}
+			} else {
+				h.regex = idReg
+			}
+		}
+
 		//验证合法性
-		if !idReg.MatchString(id) {
+		if !h.regex.MatchString(id) {
 			_, _ = c.Write([]byte("invalid id"))
 			return gnet.Close
 		}
@@ -70,7 +99,7 @@ func (h *TcpServer) OnTraffic(c gnet.Conn) (action gnet.Action) {
 		c.SetContext(ctx)
 
 		//上线
-		topic := fmt.Sprintf("tunnel/%s/%s/open", id, h.ServerId)
+		topic := fmt.Sprintf("link/%s/%s/opened", id, h.Id)
 		mqtt.Client.Publish(topic, 0, false, c.RemoteAddr().String())
 
 		//保存连接
@@ -93,7 +122,7 @@ func (h *TcpServer) OnTraffic(c gnet.Conn) (action gnet.Action) {
 	read := string(h.buf[:n])
 
 	//_, _ = c.Write([]byte("you are " + cc["id"].(string)))
-	topic := fmt.Sprintf("tunnel/%s/%s/up", cc["id"], h.ServerId)
+	topic := fmt.Sprintf("link/%s/%s/up", cc["id"], h.Id)
 	mqtt.Client.Publish(topic, 0, false, read)
 
 	return gnet.None

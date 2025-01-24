@@ -1,0 +1,6 @@
+{
+  "id": "a",
+  "server": true,
+  "type": "tcp",
+  "addr": ":60000"
+}
