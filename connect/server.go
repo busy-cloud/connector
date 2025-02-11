@@ -52,6 +52,7 @@ func (s *Server) Open() error {
 			gnet.WithTCPKeepAlive(30*time.Second),
 			gnet.WithTCPNoDelay(gnet.TCPDelay),
 			//gnet.WithTicker(true), //严重占用CPU
+			//gnet.WithLogger()
 		)
 		if err != nil {
 			log.Error(err)

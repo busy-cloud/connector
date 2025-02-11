@@ -119,7 +119,7 @@ func (h *TcpServer) OnTraffic(c gnet.Conn) (action gnet.Action) {
 	if e != nil {
 		return gnet.Close
 	}
-	read := string(h.buf[:n])
+	read := h.buf[:n] //TODO 可能要复制read
 
 	//_, _ = c.Write([]byte("you are " + cc["id"].(string)))
 	topic := fmt.Sprintf("link/%s/%s/up", cc["id"], h.Id)
