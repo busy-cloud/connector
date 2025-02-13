@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-type Client struct {
+type TcpClient struct {
 	*Connect
 
 	net.Conn
@@ -16,21 +16,20 @@ type Client struct {
 	opened bool
 }
 
-func NewClient(l *Connect) *Client {
-	c := &Client{Connect: l}
-	go c.keep()
+func NewTcpClient(l *Connect) *TcpClient {
+	c := &TcpClient{Connect: l}
 	return c
 }
 
-func (c *Client) Opened() bool {
+func (c *TcpClient) Opened() bool {
 	return c.opened
 }
 
-func (c *Client) Connected() bool {
+func (c *TcpClient) Connected() bool {
 	return c.Conn != nil
 }
 
-func (c *Client) Open() (err error) {
+func (c *TcpClient) Open() (err error) {
 	if !c.opened {
 		c.opened = true
 		go c.keep()
@@ -43,7 +42,7 @@ func (c *Client) Open() (err error) {
 	return
 }
 
-func (c *Client) Close() (err error) {
+func (c *TcpClient) Close() (err error) {
 	c.opened = true
 	if c.Conn != nil {
 		return c.Conn.Close()
@@ -51,7 +50,7 @@ func (c *Client) Close() (err error) {
 	return nil
 }
 
-func (c *Client) keep() {
+func (c *TcpClient) keep() {
 	for c.opened {
 		time.Sleep(time.Minute)
 
@@ -66,8 +65,8 @@ func (c *Client) keep() {
 	}
 }
 
-func (c *Client) receive() {
-	topicOpen := fmt.Sprintf("link/%s/opened", c.Id)
+func (c *TcpClient) receive() {
+	topicOpen := fmt.Sprintf("link/%s/open", c.Id)
 	topicUp := fmt.Sprintf("link/%s/up", c.Id)
 	topicClose := fmt.Sprintf("link/%s/close", c.Id)
 
@@ -86,7 +85,7 @@ func (c *Client) receive() {
 			break
 		}
 		data := c.buf[:n]
-		//mqtt.Client.IsConnected()
+		//mqtt.TcpClient.IsConnected()
 		//转发
 		mqtt.Client.Publish(topicUp, 0, false, data)
 	}

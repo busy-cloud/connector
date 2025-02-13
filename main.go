@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/busy-cloud/boat/api"
 	"github.com/busy-cloud/boat/boot"
 	"github.com/busy-cloud/boat/log"
 	"github.com/busy-cloud/boat/web"
@@ -32,10 +31,7 @@ func main() {
 		return
 	}
 
-	//注册接口
-	api.RegisterRoutes(web.Engine.Group("api"))
-
-	err = web.ServeHTTP()
+	err = web.Serve()
 	if err != nil {
 		log.Fatal(err)
 	}

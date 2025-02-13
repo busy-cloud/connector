@@ -8,44 +8,45 @@ import (
 	"time"
 )
 
-type Server struct {
+type GNetServer struct {
 	*Connect
 
-	engine gnet.Engine
+	engine gnet.Engine //在Handler的OnBoot中复制
 
 	opened    bool
 	connected bool
 }
 
-func NewServer(l *Connect) *Server {
-	return &Server{Connect: l}
+func NewGNetServer(l *Connect) *GNetServer {
+	return &GNetServer{Connect: l}
 }
 
-func (s *Server) Opened() bool {
+func (s *GNetServer) Opened() bool {
 	return s.opened
 }
 
-func (s *Server) Connected() bool {
+func (s *GNetServer) Connected() bool {
 	return s.connected
 }
 
-func (s *Server) Open() error {
+func (s *GNetServer) Open() error {
 	var h gnet.EventHandler
 	switch s.Type {
 	case "tcp":
 		if s.Singleton {
-			h = &TcpServerSingleton{Connect: s.Connect, Server: s}
+			h = &GNetHandlerTcpSingleton{Connect: s.Connect, GNetServer: s}
 		} else {
-			h = &TcpServer{Connect: s.Connect, Server: s}
+			h = &GNetHandlerTcp{Connect: s.Connect, GNetServer: s}
 		}
 	case "udp":
-		h = &UdpServer{Connect: s.Connect, Server: s}
+		h = &GNetHandlerUdp{Connect: s.Connect, GNetServer: s}
 	default:
 		return exception.New("错误类型")
 	}
 
 	protoAddr := s.Type + "://" + s.Addr
 	go func() {
+		//这里全阻塞等待
 		err := gnet.Run(h, protoAddr,
 			gnet.WithMulticore(true),
 			gnet.WithLockOSThread(true),
@@ -62,7 +63,7 @@ func (s *Server) Open() error {
 	return nil
 }
 
-func (s *Server) Close() error {
+func (s *GNetServer) Close() error {
 	s.connected = false
 	s.opened = false
 	return s.engine.Stop(context.Background())

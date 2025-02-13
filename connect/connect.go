@@ -19,7 +19,7 @@ type Connector interface {
 }
 
 type Connect struct {
-	Id            string         `json:"id,omitempty"`
+	Id            string         `json:"id,omitempty" xorm:"pk"`
 	Type          string         `json:"type,omitempty"`           //tcp udp serial
 	Addr          string         `json:"addr,omitempty"`           // :6000 192.168.0.100:8088 COM1
 	Server        bool           `json:"server,omitempty"`         //服务端
@@ -67,9 +67,9 @@ func LoadConnect(id string) error {
 	if c.Type == "serial" {
 		cc = NewSerial(&c)
 	} else if c.Server {
-		cc = NewServer(&c)
+		cc = NewGNetServer(&c)
 	} else {
-		cc = NewClient(&c)
+		cc = NewTcpClient(&c)
 	}
 
 	//保存

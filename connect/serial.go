@@ -84,7 +84,7 @@ func (s *Serial) keep() {
 }
 
 func (s *Serial) receive() {
-	topicOpen := fmt.Sprintf("link/%s/opened", s.Id)
+	topicOpen := fmt.Sprintf("link/%s/open", s.Id)
 	topicUp := fmt.Sprintf("link/%s/up", s.Id)
 	topicClose := fmt.Sprintf("link/%s/close", s.Id)
 
@@ -103,7 +103,7 @@ func (s *Serial) receive() {
 			break
 		}
 		data := s.buf[:n]
-		//mqtt.Client.IsConnected()
+		//mqtt.TcpClient.IsConnected()
 		//转发
 		mqtt.Client.Publish(topicUp, 0, false, data)
 	}
