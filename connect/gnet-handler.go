@@ -9,10 +9,10 @@ import (
 	"time"
 )
 
-var idReg = regexp.MustCompile(`^\w{2,128}`)
+var idReg = regexp.MustCompile(`^\w{2,128}$`)
 
-type GNetHandlerTcp struct {
-	*Connect
+type GNetHandler struct {
+	*Linker
 	*GNetServer
 
 	buf   [4096]byte
@@ -21,23 +21,37 @@ type GNetHandlerTcp struct {
 	regex *regexp.Regexp
 }
 
-func (h *GNetHandlerTcp) OnBoot(eng gnet.Engine) (action gnet.Action) {
+func NewGNetHandlerTcp(link *Linker, server *GNetServer) *GNetHandler {
+	h := &GNetHandler{
+		Linker:     link,
+		GNetServer: server,
+	}
+	if link.IdRegex != "" {
+		h.regex, _ = regexp.Compile("^" + link.IdRegex + "$")
+		if h.regex == nil {
+			h.regex = idReg
+		}
+	}
+	return h
+}
+
+func (h *GNetHandler) OnBoot(eng gnet.Engine) (action gnet.Action) {
 	h.GNetServer.opened = true
 	h.GNetServer.engine = eng
 	return gnet.None
 }
 
-func (h *GNetHandlerTcp) OnShutdown(eng gnet.Engine) {
-	h.GNetServer.opened = true
+func (h *GNetHandler) OnShutdown(eng gnet.Engine) {
+	h.GNetServer.opened = false
 }
 
-func (h *GNetHandlerTcp) OnOpen(c gnet.Conn) (out []byte, action gnet.Action) {
+func (h *GNetHandler) OnOpen(c gnet.Conn) (out []byte, action gnet.Action) {
 	h.count.Add(1)
 	h.connected = true
 	return nil, gnet.None
 }
 
-func (h *GNetHandlerTcp) OnClose(c gnet.Conn, err error) (action gnet.Action) {
+func (h *GNetHandler) OnClose(c gnet.Conn, err error) (action gnet.Action) {
 	n := h.count.Add(-1)
 	//可以使用h.engine.CountConnections()替代，就不知道效率怎么样
 	if n <= 0 {
@@ -60,12 +74,12 @@ func (h *GNetHandlerTcp) OnClose(c gnet.Conn, err error) (action gnet.Action) {
 	mqtt.Client.Publish(topic, 0, false, err.Error())
 
 	//从池中清除
-	connections.Delete(id)
+	links.Delete(id)
 
 	return gnet.None
 }
 
-func (h *GNetHandlerTcp) OnTraffic(c gnet.Conn) (action gnet.Action) {
+func (h *GNetHandler) OnTraffic(c gnet.Conn) (action gnet.Action) {
 	ctx := c.Context()
 
 	//检查首个包, 作为注册包
@@ -75,20 +89,6 @@ func (h *GNetHandlerTcp) OnTraffic(c gnet.Conn) (action gnet.Action) {
 			return gnet.Close
 		}
 		id := string(h.buf[:n])
-
-		if h.regex == nil {
-			if h.IdOptions != nil && h.IdOptions.Regex != "" {
-				h.regex, e = regexp.Compile(h.IdOptions.Regex) //重复编译
-				if e != nil {
-					//_, _ = c.Write([]byte("id regex compile error"))
-					//return gnet.Close
-				} else {
-					h.regex = idReg
-				}
-			} else {
-				h.regex = idReg
-			}
-		}
 
 		//验证合法性
 		if !h.regex.MatchString(id) {
@@ -104,7 +104,7 @@ func (h *GNetHandlerTcp) OnTraffic(c gnet.Conn) (action gnet.Action) {
 		mqtt.Client.Publish(topic, 0, false, c.RemoteAddr().String())
 
 		//保存连接
-		connections.Store(id, c)
+		links.Store(id, c)
 
 		return gnet.None
 	}
@@ -129,6 +129,6 @@ func (h *GNetHandlerTcp) OnTraffic(c gnet.Conn) (action gnet.Action) {
 	return gnet.None
 }
 
-func (h *GNetHandlerTcp) OnTick() (delay time.Duration, action gnet.Action) {
+func (h *GNetHandler) OnTick() (delay time.Duration, action gnet.Action) {
 	return 0, gnet.None
 }

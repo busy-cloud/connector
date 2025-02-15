@@ -7,15 +7,15 @@ import (
 )
 
 type UdpClient struct {
-	*Connect
+	*Linker
 
 	net.Conn
 	buf    [4096]byte
 	opened bool
 }
 
-func NewUdpClient(l *Connect) *UdpClient {
-	c := &UdpClient{Connect: l}
+func NewUdpClient(l *Linker) *UdpClient {
+	c := &UdpClient{Linker: l}
 	return c
 }
 
@@ -28,14 +28,12 @@ func (c *UdpClient) Connected() bool {
 }
 
 func (c *UdpClient) Open() (err error) {
-	if !c.opened {
-		c.opened = true
-	}
 	addr := fmt.Sprintf("%s:%d", c.Address, c.Port)
 	c.Conn, err = net.Dial("udp", addr)
 	if err != nil {
 		return err
 	}
+	c.opened = true
 	go c.receive()
 	return
 }
@@ -56,7 +54,7 @@ func (c *UdpClient) receive() {
 	//连接
 	mqtt.Client.Publish(topicOpen, 0, false, c.Conn.RemoteAddr().String())
 
-	connections.Store(c.Id, c)
+	links.Store(c.Id, c)
 
 	var n int
 	var e error
@@ -76,5 +74,5 @@ func (c *UdpClient) receive() {
 	//下线
 	mqtt.Client.Publish(topicClose, 0, false, e.Error())
 
-	connections.Delete(c.Id)
+	links.Delete(c.Id)
 }

@@ -14,7 +14,7 @@ func subscribe() {
 		"link/+/down":   0,
 	}, func(client paho.Client, message paho.Message) {
 		ss := strings.Split(message.Topic(), "/")
-		conn, ok := connections.Load(ss[1])
+		conn, ok := links.Load(ss[1])
 		if !ok {
 			return
 		}
@@ -24,7 +24,7 @@ func subscribe() {
 		}
 		_, e := c.Write(message.Payload())
 		if e != nil {
-			connections.Delete(ss[1])
+			links.Delete(ss[1])
 		}
 	})
 }

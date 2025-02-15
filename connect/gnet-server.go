@@ -2,14 +2,14 @@ package connect
 
 import (
 	"context"
-	"github.com/busy-cloud/boat/exception"
+	"fmt"
 	"github.com/busy-cloud/boat/log"
 	"github.com/panjf2000/gnet/v2"
 	"time"
 )
 
 type GNetServer struct {
-	*Connect
+	*Linker
 
 	engine gnet.Engine //在Handler的OnBoot中复制
 
@@ -17,8 +17,8 @@ type GNetServer struct {
 	connected bool
 }
 
-func NewGNetServer(l *Connect) *GNetServer {
-	return &GNetServer{Connect: l}
+func NewGNetServer(l *Linker) *GNetServer {
+	return &GNetServer{Linker: l}
 }
 
 func (s *GNetServer) Opened() bool {
@@ -30,24 +30,11 @@ func (s *GNetServer) Connected() bool {
 }
 
 func (s *GNetServer) Open() error {
-	var h gnet.EventHandler
-	switch s.Type {
-	case "tcp":
-		if s.Singleton {
-			h = &GNetHandlerTcpSingleton{Connect: s.Connect, GNetServer: s}
-		} else {
-			h = &GNetHandlerTcp{Connect: s.Connect, GNetServer: s}
-		}
-	case "udp":
-		h = &GNetHandlerUdp{Connect: s.Connect, GNetServer: s}
-	default:
-		return exception.New("错误类型")
-	}
-
-	protoAddr := s.Type + "://" + s.Addr
+	handler := &GNetHandler{Linker: s.Linker, GNetServer: s}
+	addr := fmt.Sprintf("tcp://:%d", s.Port)
 	go func() {
 		//这里全阻塞等待
-		err := gnet.Run(h, protoAddr,
+		err := gnet.Run(handler, addr,
 			gnet.WithMulticore(true),
 			gnet.WithLockOSThread(true),
 			gnet.WithTCPKeepAlive(30*time.Second),

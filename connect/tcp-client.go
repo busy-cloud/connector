@@ -9,15 +9,15 @@ import (
 )
 
 type TcpClient struct {
-	*Connect
+	*Linker
 
 	net.Conn
 	buf    [4096]byte
 	opened bool
 }
 
-func NewTcpClient(l *Connect) *TcpClient {
-	c := &TcpClient{Connect: l}
+func NewTcpClient(l *Linker) *TcpClient {
+	c := &TcpClient{Linker: l}
 	return c
 }
 
@@ -30,10 +30,7 @@ func (c *TcpClient) Connected() bool {
 }
 
 func (c *TcpClient) Open() (err error) {
-	if !c.opened {
-		c.opened = true
-		go c.keep()
-	} else {
+	if c.opened {
 		//重复打开关闭上次连接
 		if c.Conn != nil {
 			_ = c.Conn.Close()
@@ -46,6 +43,8 @@ func (c *TcpClient) Open() (err error) {
 	if err != nil {
 		return err
 	}
+	c.opened = true
+	go c.keep()
 	go c.receive()
 	return
 }
@@ -81,7 +80,7 @@ func (c *TcpClient) receive() {
 	//连接
 	mqtt.Client.Publish(topicOpen, 0, false, c.Conn.RemoteAddr().String())
 
-	connections.Store(c.Id, c)
+	links.Store(c.Id, c)
 
 	var n int
 	var e error
@@ -101,5 +100,5 @@ func (c *TcpClient) receive() {
 	//下线
 	mqtt.Client.Publish(topicClose, 0, false, e.Error())
 
-	connections.Delete(c.Id)
+	links.Delete(c.Id)
 }

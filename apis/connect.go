@@ -64,7 +64,7 @@ func connectEnable(ctx *gin.Context) {
 		api.Error(ctx, err)
 		return
 	}
-	var c map[string]any //c.Connect
+	var c map[string]any //c.Linker
 	err = json.Unmarshal(buf, &c)
 	if err != nil {
 		api.Error(ctx, err)
@@ -96,7 +96,7 @@ func connectDisable(ctx *gin.Context) {
 		api.Error(ctx, err)
 		return
 	}
-	var c map[string]any //c.Connect
+	var c map[string]any //c.Linker
 	err = json.Unmarshal(buf, &c)
 	if err != nil {
 		api.Error(ctx, err)
@@ -144,7 +144,7 @@ func connectDetail(ctx *gin.Context) {
 		api.Error(ctx, err)
 		return
 	}
-	var c map[string]any //c.Connect
+	var c map[string]any //c.Linker
 	err = json.Unmarshal(buf, &c)
 	if err != nil {
 		api.Error(ctx, err)
@@ -162,7 +162,7 @@ func connectDetail(ctx *gin.Context) {
 }
 
 func connects(ctx *gin.Context) {
-	var ls []map[string]any //[]*connect.Connect
+	var ls []map[string]any //[]*connect.Linker
 	files, err := filepath.Glob("connects/*.json")
 	if err != nil {
 		api.Error(ctx, err)
@@ -176,7 +176,7 @@ func connects(ctx *gin.Context) {
 			e = multierr.Append(e, err)
 			continue
 		}
-		var c map[string]any //c.Connect
+		var c map[string]any //c.Linker
 		err = json.Unmarshal(buf, &c)
 		if err != nil {
 			//log.Error(err)
@@ -203,7 +203,7 @@ func connects(ctx *gin.Context) {
 }
 
 func connectCreate(ctx *gin.Context) {
-	var c map[string]any //connect.Connect
+	var c map[string]any //connect.Linker
 	err := ctx.BindJSON(&c)
 	if err != nil {
 		api.Error(ctx, err)
@@ -236,7 +236,7 @@ func connectCreate(ctx *gin.Context) {
 func connectUpdate(ctx *gin.Context) {
 	id := ctx.Param("id")
 
-	var c map[string]any // connect.Connect
+	var c map[string]any // connect.Linker
 	err := ctx.BindJSON(&c)
 	if err != nil {
 		api.Error(ctx, err)

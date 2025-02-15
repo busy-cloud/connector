@@ -4,6 +4,7 @@ go 1.23.0
 
 require (
 	github.com/busy-cloud/boat v0.0.1
+	github.com/eclipse/paho.mqtt.golang v1.5.0
 	github.com/gin-gonic/gin v1.10.0
 	github.com/panjf2000/gnet/v2 v2.7.1
 	go.bug.st/serial v1.6.2
@@ -15,7 +16,6 @@ require (
 	github.com/bytedance/sonic/loader v0.2.3 // indirect
 	github.com/cloudwego/base64x v0.1.5 // indirect
 	github.com/creack/goselect v0.1.2 // indirect
-	github.com/eclipse/paho.mqtt.golang v1.5.0 // indirect
 	github.com/fsnotify/fsnotify v1.8.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.8 // indirect
 	github.com/gin-contrib/cors v1.7.3 // indirect

@@ -9,15 +9,15 @@ import (
 )
 
 type Serial struct {
-	*Connect
+	*Linker
 
 	serial.Port
 	buf    [4096]byte
 	opened bool
 }
 
-func NewSerial(l *Connect) *Serial {
-	s := &Serial{Connect: l}
+func NewSerial(l *Linker) *Serial {
+	s := &Serial{Linker: l}
 	go s.keep()
 	return s
 }
@@ -31,11 +31,6 @@ func (s *Serial) Connected() bool {
 }
 
 func (s *Serial) Open() (err error) {
-	if !s.opened {
-		s.opened = true
-		go s.keep()
-	}
-
 	opts := serial.Mode{
 		BaudRate: s.SerialOptions.BaudRate,
 		DataBits: s.SerialOptions.DataBits,
@@ -43,8 +38,8 @@ func (s *Serial) Open() (err error) {
 		Parity:   serial.Parity(s.SerialOptions.ParityMode),
 	}
 
-	log.Trace("create serial ", s.Addr, opts)
-	s.Port, err = serial.Open(s.Addr, &opts)
+	log.Trace("create serial ", s.Address, opts)
+	s.Port, err = serial.Open(s.SerialOptions.PortName, &opts)
 	if err != nil {
 		return err
 	}
@@ -55,6 +50,8 @@ func (s *Serial) Open() (err error) {
 		return err
 	}
 
+	s.opened = true
+	go s.keep()
 	go s.receive()
 
 	return nil
@@ -89,9 +86,9 @@ func (s *Serial) receive() {
 	topicClose := fmt.Sprintf("link/%s/close", s.Id)
 
 	//连接
-	mqtt.Client.Publish(topicOpen, 0, false, s.Addr)
+	mqtt.Client.Publish(topicOpen, 0, false, s.SerialOptions.PortName)
 
-	connections.Store(s.Id, s)
+	links.Store(s.Id, s)
 
 	var n int
 	var e error
@@ -111,5 +108,5 @@ func (s *Serial) receive() {
 	//下线
 	mqtt.Client.Publish(topicClose, 0, false, e.Error())
 
-	connections.Delete(s.Id)
+	links.Delete(s.Id)
 }
