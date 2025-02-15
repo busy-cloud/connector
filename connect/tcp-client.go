@@ -33,8 +33,16 @@ func (c *TcpClient) Open() (err error) {
 	if !c.opened {
 		c.opened = true
 		go c.keep()
+	} else {
+		//重复打开关闭上次连接
+		if c.Conn != nil {
+			_ = c.Conn.Close()
+		}
 	}
-	c.Conn, err = net.Dial(c.Type, c.Addr)
+
+	//连接
+	addr := fmt.Sprintf("%s:%d", c.Address, c.Port)
+	c.Conn, err = net.Dial("tcp", addr)
 	if err != nil {
 		return err
 	}
