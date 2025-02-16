@@ -2,7 +2,9 @@ package connect
 
 import (
 	"fmt"
+	"github.com/busy-cloud/boat/db"
 	"github.com/busy-cloud/boat/mqtt"
+	"github.com/busy-cloud/connector/types"
 	"github.com/panjf2000/gnet/v2"
 	"regexp"
 	"sync/atomic"
@@ -12,7 +14,7 @@ import (
 var idReg = regexp.MustCompile(`^\w{2,128}$`)
 
 type GNetHandler struct {
-	*Linker
+	*types.Linker
 	*GNetServer
 
 	buf   [4096]byte
@@ -21,7 +23,7 @@ type GNetHandler struct {
 	regex *regexp.Regexp
 }
 
-func NewGNetHandlerTcp(link *Linker, server *GNetServer) *GNetHandler {
+func NewGNetHandlerTcp(link *types.Linker, server *GNetServer) *GNetHandler {
 	h := &GNetHandler{
 		Linker:     link,
 		GNetServer: server,
@@ -74,7 +76,7 @@ func (h *GNetHandler) OnClose(c gnet.Conn, err error) (action gnet.Action) {
 	mqtt.Client.Publish(topic, 0, false, err.Error())
 
 	//从池中清除
-	links.Delete(id)
+	connections.Delete(id)
 
 	return gnet.None
 }
@@ -96,6 +98,26 @@ func (h *GNetHandler) OnTraffic(c gnet.Conn) (action gnet.Action) {
 			return gnet.Close
 		}
 
+		//从数据库中查询
+		var i types.Incoming
+		//xorm.ErrNotExist //db.Engine.Exist()
+		has, err := db.Engine.ID(id).Get(&i)
+		if err != nil {
+			_, _ = c.Write([]byte(err.Error()))
+			return gnet.Close
+		}
+		//查不到
+		if !has {
+			i.Id = id
+			i.ServerId = h.Id
+			_, err = db.Engine.InsertOne(&i)
+			if err != nil {
+				_, _ = c.Write([]byte(err.Error()))
+				return gnet.Close
+			}
+		}
+		incoming := Incoming{Incoming: &i, conn: c}
+
 		ctx = map[string]interface{}{"id": id}
 		c.SetContext(ctx)
 
@@ -104,7 +126,7 @@ func (h *GNetHandler) OnTraffic(c gnet.Conn) (action gnet.Action) {
 		mqtt.Client.Publish(topic, 0, false, c.RemoteAddr().String())
 
 		//保存连接
-		links.Store(id, c)
+		connections.Store(id, incoming)
 
 		return gnet.None
 	}

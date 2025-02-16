@@ -3,12 +3,13 @@ package connect
 import (
 	"fmt"
 	"github.com/busy-cloud/boat/mqtt"
+	"github.com/busy-cloud/connector/types"
 	"go.uber.org/multierr"
 	"net"
 )
 
 type TcpServer struct {
-	*Linker
+	*types.Linker
 
 	net.Conn
 	buf    [4096]byte
@@ -17,7 +18,7 @@ type TcpServer struct {
 	listener net.Listener
 }
 
-func NewTcpServer(l *Linker) *TcpServer {
+func NewTcpServer(l *types.Linker) *TcpServer {
 	c := &TcpServer{Linker: l}
 	return c
 }
@@ -80,7 +81,6 @@ func (c *TcpServer) receive() {
 
 		//连接
 		mqtt.Client.Publish(topicOpen, 0, false, c.Conn.RemoteAddr().String())
-		links.Store(c.Id, c)
 
 		var n int
 		var e error
@@ -99,7 +99,6 @@ func (c *TcpServer) receive() {
 
 		//下线
 		mqtt.Client.Publish(topicClose, 0, false, e.Error())
-		links.Delete(c.Id)
 
 		c.Conn = nil
 	}

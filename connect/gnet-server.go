@@ -4,12 +4,13 @@ import (
 	"context"
 	"fmt"
 	"github.com/busy-cloud/boat/log"
+	"github.com/busy-cloud/connector/types"
 	"github.com/panjf2000/gnet/v2"
 	"time"
 )
 
 type GNetServer struct {
-	*Linker
+	*types.Linker
 
 	engine gnet.Engine //在Handler的OnBoot中复制
 
@@ -17,7 +18,7 @@ type GNetServer struct {
 	connected bool
 }
 
-func NewGNetServer(l *Linker) *GNetServer {
+func NewGNetServer(l *types.Linker) *GNetServer {
 	return &GNetServer{Linker: l}
 }
 
@@ -30,7 +31,8 @@ func (s *GNetServer) Connected() bool {
 }
 
 func (s *GNetServer) Open() error {
-	handler := &GNetHandler{Linker: s.Linker, GNetServer: s}
+	//handler := &GNetHandler{Linker: s.Linker, GNetServer: s}
+	handler := NewGNetHandlerTcp(s.Linker, s)
 	addr := fmt.Sprintf("tcp://:%d", s.Port)
 	go func() {
 		//这里全阻塞等待

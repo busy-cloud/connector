@@ -3,18 +3,19 @@ package connect
 import (
 	"fmt"
 	"github.com/busy-cloud/boat/mqtt"
+	"github.com/busy-cloud/connector/types"
 	"net"
 )
 
 type UdpClient struct {
-	*Linker
+	*types.Linker
 
 	net.Conn
 	buf    [4096]byte
 	opened bool
 }
 
-func NewUdpClient(l *Linker) *UdpClient {
+func NewUdpClient(l *types.Linker) *UdpClient {
 	c := &UdpClient{Linker: l}
 	return c
 }
@@ -54,7 +55,7 @@ func (c *UdpClient) receive() {
 	//连接
 	mqtt.Client.Publish(topicOpen, 0, false, c.Conn.RemoteAddr().String())
 
-	links.Store(c.Id, c)
+	connections.Store(c.Id, c)
 
 	var n int
 	var e error
@@ -74,5 +75,5 @@ func (c *UdpClient) receive() {
 	//下线
 	mqtt.Client.Publish(topicClose, 0, false, e.Error())
 
-	links.Delete(c.Id)
+	connections.Delete(c.Id)
 }

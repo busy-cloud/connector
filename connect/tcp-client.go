@@ -4,19 +4,20 @@ import (
 	"fmt"
 	"github.com/busy-cloud/boat/log"
 	"github.com/busy-cloud/boat/mqtt"
+	"github.com/busy-cloud/connector/types"
 	"net"
 	"time"
 )
 
 type TcpClient struct {
-	*Linker
+	*types.Linker
 
 	net.Conn
 	buf    [4096]byte
 	opened bool
 }
 
-func NewTcpClient(l *Linker) *TcpClient {
+func NewTcpClient(l *types.Linker) *TcpClient {
 	c := &TcpClient{Linker: l}
 	return c
 }
@@ -80,8 +81,6 @@ func (c *TcpClient) receive() {
 	//连接
 	mqtt.Client.Publish(topicOpen, 0, false, c.Conn.RemoteAddr().String())
 
-	links.Store(c.Id, c)
-
 	var n int
 	var e error
 	for {
@@ -99,6 +98,4 @@ func (c *TcpClient) receive() {
 
 	//下线
 	mqtt.Client.Publish(topicClose, 0, false, e.Error())
-
-	links.Delete(c.Id)
 }

@@ -16,7 +16,7 @@ func Startup() error {
 	for _, f := range files {
 		//log.Println(filepath.Base(f))
 		id, _ := strings.CutSuffix(filepath.Base(f), ".json")
-		err = LoadConnect(id)
+		err = LoadLinker(id)
 		if err != nil {
 			//e = multierr.Append(e, err)
 			log.Error(err)

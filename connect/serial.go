@@ -4,19 +4,20 @@ import (
 	"fmt"
 	"github.com/busy-cloud/boat/log"
 	"github.com/busy-cloud/boat/mqtt"
+	"github.com/busy-cloud/connector/types"
 	"go.bug.st/serial"
 	"time"
 )
 
 type Serial struct {
-	*Linker
+	*types.Linker
 
 	serial.Port
 	buf    [4096]byte
 	opened bool
 }
 
-func NewSerial(l *Linker) *Serial {
+func NewSerial(l *types.Linker) *Serial {
 	s := &Serial{Linker: l}
 	go s.keep()
 	return s
@@ -88,8 +89,6 @@ func (s *Serial) receive() {
 	//连接
 	mqtt.Client.Publish(topicOpen, 0, false, s.SerialOptions.PortName)
 
-	links.Store(s.Id, s)
-
 	var n int
 	var e error
 	for {
@@ -107,6 +106,4 @@ func (s *Serial) receive() {
 
 	//下线
 	mqtt.Client.Publish(topicClose, 0, false, e.Error())
-
-	links.Delete(s.Id)
 }
