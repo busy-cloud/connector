@@ -1,12 +1,11 @@
 package connect
 
 import (
-	"encoding/json"
 	"fmt"
+	"github.com/busy-cloud/boat/db"
 	"github.com/busy-cloud/boat/log"
 	"github.com/busy-cloud/connector/interfaces"
 	"github.com/busy-cloud/connector/types"
-	"os"
 	"sync"
 )
 
@@ -20,48 +19,51 @@ func GetLinker(id string) interfaces.Linker {
 	return nil
 }
 
-func LoadLinker(id string) error {
-	buf, err := os.ReadFile("connects/" + id + ".json")
-	if err != nil {
-		return err
-	}
-	var l types.Linker
-	err = json.Unmarshal(buf, &l)
-	if err != nil {
-		return err
-	}
-
+func FromLinker(l *types.Linker) error {
 	var linker interfaces.Linker
 
 	switch l.Type {
 	case "serial":
-		linker = NewSerial(&l)
+		linker = NewSerial(l)
 	case "tcp":
-		linker = NewTcpClient(&l)
+		linker = NewTcpClient(l)
 	case "tcp-server":
-		linker = NewTcpServer(&l)
+		linker = NewTcpServer(l)
 	case "tcp-server-multiple":
-		linker = NewGNetServer(&l)
+		linker = NewGNetServer(l)
 	default:
 		return fmt.Errorf("unknown connector type: %s", l.Type)
 	}
 
 	//保存
-	val, loaded := linkers.LoadOrStore(id, linker)
+	val, loaded := linkers.LoadOrStore(l.Id, linker)
 	if loaded {
-		err = val.(interfaces.Linker).Close()
+		err := val.(interfaces.Linker).Close()
 		if err != nil {
 			log.Error(err)
 		}
 	}
 
 	//启动
-	err = linker.Open()
+	err := linker.Open()
 	if err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func LoadLinker(id string) error {
+	var l types.Linker
+	has, err := db.Engine.ID(id).Get(&l)
+	if err != nil {
+		return err
+	}
+	if !has {
+		return fmt.Errorf("linker %s not found", id)
+	}
+
+	return FromLinker(&l)
 }
 
 func UnloadLinker(id string) error {
