@@ -2,6 +2,7 @@ package boot
 
 import (
 	"github.com/busy-cloud/boat/boot"
+	_ "github.com/busy-cloud/connector/apis"
 	"github.com/busy-cloud/connector/connect"
 )
 
