@@ -34,6 +34,8 @@ func (s *GNetServer) Open() error {
 	//handler := &GNetHandler{Linker: s.Linker, GNetServer: s}
 	handler := NewGNetHandlerTcp(s.Linker, s)
 	addr := fmt.Sprintf("tcp://:%d", s.Port)
+	log.Println("GNet Server Opening: ", addr)
+
 	go func() {
 		//这里全阻塞等待
 		err := gnet.Run(handler, addr,
