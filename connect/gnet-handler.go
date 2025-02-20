@@ -118,7 +118,7 @@ func (h *GNetHandler) OnTraffic(c gnet.Conn) (action gnet.Action) {
 				return gnet.Close
 			}
 		}
-		incoming := Incoming{Incoming: &i, conn: c}
+		//incoming := Incoming{Incoming: &i, conn: c}
 
 		ctx = map[string]interface{}{"id": id}
 		c.SetContext(ctx)
@@ -128,7 +128,7 @@ func (h *GNetHandler) OnTraffic(c gnet.Conn) (action gnet.Action) {
 		mqtt.Client.Publish(topic, 0, false, c.RemoteAddr().String())
 
 		//保存连接
-		connections.Store(id, incoming)
+		connections.Store(id, c)
 
 		return gnet.None
 	}
