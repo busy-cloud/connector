@@ -8,6 +8,7 @@ func init() {
 
 type Linker struct {
 	Id            string         `json:"id,omitempty" xorm:"pk"`
+	Name          string         `json:"name,omitempty"`
 	Type          string         `json:"type,omitempty"`           //serial tcp-client tcp-server
 	Address       string         `json:"address,omitempty"`        //地址，域名或IP
 	Port          uint16         `json:"port,omitempty"`           //端口号

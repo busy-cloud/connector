@@ -12,7 +12,7 @@ func init() {
 	api.Register("GET", "connector/linker/list", curd.ApiList[types.Linker]())
 	api.Register("POST", "connector/linker/create", curd.ApiCreate[types.Linker]())
 	api.Register("GET", "connector/linker/:id", curd.ParseParamStringId, curd.ApiGet[types.Linker]())
-	api.Register("POST", "connector/linker/:id", curd.ParseParamStringId, curd.ApiUpdate[types.Linker]("id"))
+	api.Register("POST", "connector/linker/:id", curd.ParseParamStringId, curd.ApiUpdate[types.Linker]("id", "name", "type", "address", "port", "serial", "id_regex", "disabled"))
 	api.Register("GET", "connector/linker/:id/delete", curd.ParseParamStringId, curd.ApiDelete[types.Linker]())
 	api.Register("GET", "connector/linker/:id/enable", curd.ParseParamStringId, curd.ApiDisable[types.Linker](false))
 	api.Register("GET", "connector/linker/:id/disable", curd.ParseParamStringId, curd.ApiDisable[types.Linker](true))
