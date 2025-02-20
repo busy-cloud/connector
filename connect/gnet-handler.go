@@ -74,11 +74,11 @@ func (h *GNetHandler) OnClose(c gnet.Conn, err error) (action gnet.Action) {
 	id := cc["id"].(string)
 
 	//下线
-	topic := fmt.Sprintf("link/%s/%s/close", id, h.Id)
+	topic := fmt.Sprintf("link/%s/%s/close", h.Id, id)
 	mqtt.Client.Publish(topic, 0, false, err.Error())
 
 	//从池中清除
-	connections.Delete(id)
+	incomingConnections.Delete(id)
 
 	return gnet.None
 }
@@ -124,11 +124,11 @@ func (h *GNetHandler) OnTraffic(c gnet.Conn) (action gnet.Action) {
 		c.SetContext(ctx)
 
 		//上线
-		topic := fmt.Sprintf("link/%s/%s/open", id, h.Id)
+		topic := fmt.Sprintf("link/%s/%s/open", h.Id, id)
 		mqtt.Client.Publish(topic, 0, false, c.RemoteAddr().String())
 
 		//保存连接
-		connections.Store(id, c)
+		incomingConnections.Store(id, c)
 
 		return gnet.None
 	}
@@ -147,7 +147,7 @@ func (h *GNetHandler) OnTraffic(c gnet.Conn) (action gnet.Action) {
 	read := h.buf[:n] //TODO 可能要复制read
 
 	//_, _ = c.Write([]byte("you are " + cc["id"].(string)))
-	topic := fmt.Sprintf("link/%s/%s/up", cc["id"], h.Id)
+	topic := fmt.Sprintf("link/%s/%s/up", h.Id, cc["id"])
 	mqtt.Client.Publish(topic, 0, false, read)
 
 	return gnet.None

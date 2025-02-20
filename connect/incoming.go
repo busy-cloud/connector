@@ -6,11 +6,11 @@ import (
 	"sync"
 )
 
-var connections sync.Map //[string, io.ReadWriteCloser]
+var incomingConnections sync.Map //[string, io.ReadWriteCloser]
 
 type Incoming struct {
 	*types.Incoming
-	
+
 	conn io.ReadWriteCloser
 }
 
@@ -19,7 +19,7 @@ func (l *Incoming) Close() error {
 }
 
 func GetIncoming(id string) *Incoming {
-	val, ok := connections.Load(id)
+	val, ok := incomingConnections.Load(id)
 	if ok {
 		return val.(*Incoming)
 	}
