@@ -33,6 +33,8 @@ func NewGNetHandlerTcp(link *types.Linker, server *GNetServer) *GNetHandler {
 		if h.regex == nil {
 			h.regex = idReg
 		}
+	} else {
+		h.regex = idReg
 	}
 	return h
 }
