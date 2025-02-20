@@ -6,7 +6,7 @@ require (
 	github.com/busy-cloud/boat v0.0.5
 	github.com/eclipse/paho.mqtt.golang v1.5.0
 	github.com/gin-gonic/gin v1.10.0
-	github.com/panjf2000/gnet/v2 v2.7.2
+	github.com/panjf2000/gnet/v2 v2.7.0
 	go.bug.st/serial v1.6.2
 	go.uber.org/multierr v1.11.0
 )
@@ -47,7 +47,6 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-sqlite3 v1.14.24 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
-	github.com/mochi-mqtt/server/v2 v2.7.7 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/panjf2000/ants/v2 v2.11.1 // indirect
