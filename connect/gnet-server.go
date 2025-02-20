@@ -40,7 +40,7 @@ func (s *GNetServer) Open() error {
 		//这里全阻塞等待
 		err := gnet.Run(handler, addr,
 			gnet.WithMulticore(true),
-			gnet.WithLockOSThread(true),
+			//gnet.WithLockOSThread(true), //依赖CGO，容易编译出错
 			gnet.WithTCPKeepAlive(30*time.Second),
 			gnet.WithTCPNoDelay(gnet.TCPDelay),
 			//gnet.WithTicker(true), //严重占用CPU
