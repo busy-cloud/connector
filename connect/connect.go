@@ -7,6 +7,11 @@ import (
 )
 
 func Startup() error {
+
+	//订阅通知
+	subscribe()
+
+	//加载连接器
 	var linkers []*types.Linker
 	err := db.Engine.Find(&linkers)
 	if err != nil {
@@ -18,5 +23,6 @@ func Startup() error {
 			log.Error(err)
 		}
 	}
+
 	return nil
 }
