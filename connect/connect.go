@@ -3,6 +3,7 @@ package connect
 import (
 	"github.com/busy-cloud/boat/db"
 	"github.com/busy-cloud/boat/log"
+	"github.com/busy-cloud/connector/interfaces"
 	"github.com/busy-cloud/connector/types"
 )
 
@@ -24,5 +25,14 @@ func Startup() error {
 		}
 	}
 
+	return nil
+}
+
+func Shutdown() error {
+	linkers.Range(func(key, value interface{}) bool {
+		linker := value.(interfaces.Linker)
+		_ = linker.Close()
+		return true
+	})
 	return nil
 }

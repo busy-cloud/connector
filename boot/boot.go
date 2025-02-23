@@ -9,7 +9,7 @@ import (
 func init() {
 	boot.Register("connector", &boot.Task{
 		Startup:  connect.Startup,
-		Shutdown: nil,
+		Shutdown: connect.Shutdown,
 		Depends:  []string{"log", "mqtt", "database"},
 	})
 }
