@@ -87,20 +87,20 @@ func (s *GNetServer) OnShutdown(eng gnet.Engine) {
 	s.opened = false
 }
 
-func (s *GNetServer) OnOpen(c gnet.Conn) (out []byte, action gnet.Action) {
+func (s *GNetServer) OnOpen(conn gnet.Conn) (out []byte, action gnet.Action) {
 	s.count.Add(1)
 	s.connected = true
 	return nil, gnet.None
 }
 
-func (s *GNetServer) OnClose(c gnet.Conn, err error) (action gnet.Action) {
+func (s *GNetServer) OnClose(conn gnet.Conn, err error) (action gnet.Action) {
 	n := s.count.Add(-1)
 	//可以使用h.engine.CountConnections()替代，就不知道效率怎么样
 	if n <= 0 {
 		s.connected = false
 	}
 
-	ctx := c.Context()
+	ctx := conn.Context()
 	if ctx == nil {
 		return gnet.None
 	}
@@ -109,11 +109,16 @@ func (s *GNetServer) OnClose(c gnet.Conn, err error) (action gnet.Action) {
 	if !ok {
 		return gnet.None
 	}
-	id := cc["id"].(string)
+	id := cc["id"]
 
 	//下线
 	topic := fmt.Sprintf("link/%s/%s/close", s.Id, id)
 	mqtt.Client.Publish(topic, 0, false, err.Error())
+	if p, ok := cc["protocol"]; ok {
+		//向协议转发
+		topic := fmt.Sprintf("%s/%s/%s/close", p, s.Id, id)
+		mqtt.Client.Publish(topic, 0, false, err.Error())
+	}
 
 	//从池中清除
 	incomingConnections.Delete(id)
@@ -121,12 +126,12 @@ func (s *GNetServer) OnClose(c gnet.Conn, err error) (action gnet.Action) {
 	return gnet.None
 }
 
-func (s *GNetServer) OnTraffic(c gnet.Conn) (action gnet.Action) {
-	ctx := c.Context()
+func (s *GNetServer) OnTraffic(conn gnet.Conn) (action gnet.Action) {
+	ctx := conn.Context()
 
 	//检查首个包, 作为注册包
 	if ctx == nil {
-		n, e := c.Read(s.buf[:])
+		n, e := conn.Read(s.buf[:])
 		if e != nil {
 			return gnet.Close
 		}
@@ -134,7 +139,7 @@ func (s *GNetServer) OnTraffic(c gnet.Conn) (action gnet.Action) {
 
 		//验证合法性
 		if !s.regex.MatchString(id) {
-			_, _ = c.Write([]byte("invalid id"))
+			_, _ = conn.Write([]byte("invalid id"))
 			return gnet.Close
 		}
 
@@ -143,50 +148,61 @@ func (s *GNetServer) OnTraffic(c gnet.Conn) (action gnet.Action) {
 		//xorm.ErrNotExist //db.Engine.Exist()
 		has, err := db.Engine.ID(id).Get(&i)
 		if err != nil {
-			_, _ = c.Write([]byte(err.Error()))
+			_, _ = conn.Write([]byte(err.Error()))
 			return gnet.Close
 		}
 		//查不到
 		if !has {
 			i.Id = id
 			i.ServerId = s.Id
+			i.Protocol = s.Protocol //继承协议
 			_, err = db.Engine.InsertOne(&i)
 			if err != nil {
-				_, _ = c.Write([]byte(err.Error()))
+				_, _ = conn.Write([]byte(err.Error()))
 				return gnet.Close
 			}
 		}
-		//incoming := Incoming{Incoming: &i, conn: c}
+		//incoming := Incoming{Incoming: &i, conn: conn}
 
-		ctx = map[string]interface{}{"id": id}
-		c.SetContext(ctx)
+		c := map[string]interface{}{"id": id}
+		conn.SetContext(c)
 
 		//上线
 		topic := fmt.Sprintf("link/%s/%s/open", s.Id, id)
-		mqtt.Client.Publish(topic, 0, false, c.RemoteAddr().String())
+		mqtt.Client.Publish(topic, 0, false, conn.RemoteAddr().String())
+		if i.Protocol != "" {
+			c["protocol"] = i.Protocol //协议也保存进去
+			topic = fmt.Sprintf("%s/%s/%s/open", i.Protocol, s.Id, id)
+			mqtt.Client.Publish(topic, 0, false, conn.RemoteAddr().String())
+		}
 
 		//保存连接
-		incomingConnections.Store(id, c)
+		incomingConnections.Store(id, conn)
 
 		return gnet.None
 	}
 
 	//取出上下文
-	cc, ok := ctx.(map[string]interface{})
+	c, ok := ctx.(map[string]interface{})
 	if !ok {
-		_, _ = c.Write([]byte("context is not map"))
+		_, _ = conn.Write([]byte("context is not map"))
 		return gnet.Close
 	}
+	id := c["id"]
 
-	n, e := c.Read(s.buf[:])
+	n, e := conn.Read(s.buf[:])
 	if e != nil {
 		return gnet.Close
 	}
 	read := s.buf[:n] //TODO 可能要复制read
 
-	//_, _ = c.Write([]byte("you are " + cc["id"].(string)))
-	topic := fmt.Sprintf("link/%s/%s/up", s.Id, cc["id"])
+	topic := fmt.Sprintf("link/%s/%s/up", s.Id, id)
 	mqtt.Client.Publish(topic, 0, false, read)
+	if p, ok := c["protocol"]; ok {
+		//向协议转发
+		topic := fmt.Sprintf("%s/%s/%s/up", p, s.Id, id)
+		mqtt.Client.Publish(topic, 0, false, read)
+	}
 
 	return gnet.None
 }

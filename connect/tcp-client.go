@@ -74,13 +74,17 @@ func (c *TcpClient) keep() {
 }
 
 func (c *TcpClient) receive() {
-	topicOpen := fmt.Sprintf("link/%s/open", c.Id)
-	topicUp := fmt.Sprintf("link/%s/up", c.Id)
-	topicClose := fmt.Sprintf("link/%s/close", c.Id)
 
 	//连接
+	topicOpen := fmt.Sprintf("link/%s/open", c.Id)
 	mqtt.Client.Publish(topicOpen, 0, false, c.Conn.RemoteAddr().String())
+	if c.Protocol != "" {
+		topic := fmt.Sprintf("%s/%s/open", c.Protocol, c.Id)
+		mqtt.Client.Publish(topic, 0, false, c.Conn.RemoteAddr().String())
+	}
 
+	topicUp := fmt.Sprintf("link/%s/up", c.Id)
+	topicUpProtocol := fmt.Sprintf("%s/%s/up", c.Protocol, c.Id)
 	var n int
 	var e error
 	for {
@@ -94,8 +98,16 @@ func (c *TcpClient) receive() {
 		//mqtt.TcpClient.IsConnected()
 		//转发
 		mqtt.Client.Publish(topicUp, 0, false, data)
+		if c.Protocol != "" {
+			mqtt.Client.Publish(topicUpProtocol, 0, false, data)
+		}
 	}
 
 	//下线
+	topicClose := fmt.Sprintf("link/%s/close", c.Id)
 	mqtt.Client.Publish(topicClose, 0, false, e.Error())
+	if c.Protocol != "" {
+		topic := fmt.Sprintf("%s/%s/close", c.Protocol, c.Id)
+		mqtt.Client.Publish(topic, 0, false, c.SerialOptions.PortName)
+	}
 }
