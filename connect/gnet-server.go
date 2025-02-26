@@ -120,11 +120,11 @@ func (s *GNetServer) OnClose(conn gnet.Conn, err error) (action gnet.Action) {
 	if last != nil && last.(gnet.Conn) == conn {
 		//下线
 		topic := fmt.Sprintf("link/%s/%s/close", s.Id, id)
-		mqtt.Client.Publish(topic, 0, false, err.Error())
+		mqtt.Publish(topic, err.Error())
 		if p, ok := cc["protocol"]; ok {
 			//向协议转发
 			topic := fmt.Sprintf("%s/%s/%s/close", p, s.Id, id)
-			mqtt.Client.Publish(topic, 0, false, err.Error())
+			mqtt.Publish(topic, err.Error())
 		}
 
 		//从池中清除
@@ -177,11 +177,11 @@ func (s *GNetServer) OnTraffic(conn gnet.Conn) (action gnet.Action) {
 
 		//上线
 		topic := fmt.Sprintf("link/%s/%s/open", s.Id, id)
-		mqtt.Client.Publish(topic, 0, false, conn.RemoteAddr().String())
+		mqtt.Publish(topic, conn.RemoteAddr().String())
 		if i.Protocol != "" {
 			c["protocol"] = i.Protocol //协议也保存进去
 			topic = fmt.Sprintf("%s/%s/%s/open", i.Protocol, s.Id, id)
-			mqtt.Client.Publish(topic, 0, false, conn.RemoteAddr().String())
+			mqtt.Publish(topic, conn.RemoteAddr().String())
 		}
 
 		//保存连接
@@ -205,11 +205,11 @@ func (s *GNetServer) OnTraffic(conn gnet.Conn) (action gnet.Action) {
 	read := s.buf[:n] //TODO 可能要复制read
 
 	topic := fmt.Sprintf("link/%s/%s/up", s.Id, id)
-	mqtt.Client.Publish(topic, 0, false, read)
+	mqtt.Publish(topic, read)
 	if p, ok := c["protocol"]; ok {
 		//向协议转发
 		topic := fmt.Sprintf("%s/%s/%s/up", p, s.Id, id)
-		mqtt.Client.Publish(topic, 0, false, read)
+		mqtt.Publish(topic, read)
 	}
 
 	return gnet.None

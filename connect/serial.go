@@ -85,10 +85,10 @@ func (s *Serial) receive() {
 
 	//连接
 	topicOpen := fmt.Sprintf("link/%s/open", s.Id)
-	mqtt.Client.Publish(topicOpen, 0, false, s.SerialOptions.PortName)
+	mqtt.Publish(topicOpen, s.SerialOptions.PortName)
 	if s.Protocol != "" {
 		topic := fmt.Sprintf("%s/%s/open", s.Protocol, s.Id)
-		mqtt.Client.Publish(topic, 0, false, s.SerialOptions.PortName)
+		mqtt.Publish(topic, s.SerialOptions.PortName)
 	}
 
 	//接收数据
@@ -107,17 +107,17 @@ func (s *Serial) receive() {
 		data := s.buf[:n]
 		//mqtt.TcpClient.IsConnected()
 		//转发
-		mqtt.Client.Publish(topicUp, 0, false, data)
+		mqtt.Publish(topicUp, data)
 		if s.Protocol != "" {
-			mqtt.Client.Publish(topicUpProtocol, 0, false, data)
+			mqtt.Publish(topicUpProtocol, data)
 		}
 	}
 
 	//下线
 	topicClose := fmt.Sprintf("link/%s/close", s.Id)
-	mqtt.Client.Publish(topicClose, 0, false, e.Error())
+	mqtt.Publish(topicClose, e.Error())
 	if s.Protocol != "" {
 		topic := fmt.Sprintf("%s/%s/close", s.Protocol, s.Id)
-		mqtt.Client.Publish(topic, 0, false, s.SerialOptions.PortName)
+		mqtt.Publish(topic, s.SerialOptions.PortName)
 	}
 }

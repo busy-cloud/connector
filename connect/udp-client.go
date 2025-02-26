@@ -53,7 +53,7 @@ func (c *UdpClient) receive() {
 	topicClose := fmt.Sprintf("link/%s/close", c.Id)
 
 	//连接
-	mqtt.Client.Publish(topicOpen, 0, false, c.Conn.RemoteAddr().String())
+	mqtt.Publish(topicOpen, c.Conn.RemoteAddr().String())
 
 	incomingConnections.Store(c.Id, c)
 
@@ -69,11 +69,11 @@ func (c *UdpClient) receive() {
 		data := c.buf[:n]
 		//mqtt.UdpClient.IsConnected()
 		//转发
-		mqtt.Client.Publish(topicUp, 0, false, data)
+		mqtt.Publish(topicUp, data)
 	}
 
 	//下线
-	mqtt.Client.Publish(topicClose, 0, false, e.Error())
+	mqtt.Publish(topicClose, e.Error())
 
 	incomingConnections.Delete(c.Id)
 }
