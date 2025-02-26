@@ -111,17 +111,25 @@ func (s *GNetServer) OnClose(conn gnet.Conn, err error) (action gnet.Action) {
 	}
 	id := cc["id"]
 
-	//下线
-	topic := fmt.Sprintf("link/%s/%s/close", s.Id, id)
-	mqtt.Client.Publish(topic, 0, false, err.Error())
-	if p, ok := cc["protocol"]; ok {
-		//向协议转发
-		topic := fmt.Sprintf("%s/%s/%s/close", p, s.Id, id)
-		mqtt.Client.Publish(topic, 0, false, err.Error())
+	last, ok := incomingConnections.Load(id)
+	if !ok {
+		return gnet.None
 	}
 
-	//从池中清除
-	incomingConnections.Delete(id)
+	//同一连接才算关闭，应对移动网络抖动问题，新连接发起后，旧连接才关闭
+	if last != nil && last.(gnet.Conn) == conn {
+		//下线
+		topic := fmt.Sprintf("link/%s/%s/close", s.Id, id)
+		mqtt.Client.Publish(topic, 0, false, err.Error())
+		if p, ok := cc["protocol"]; ok {
+			//向协议转发
+			topic := fmt.Sprintf("%s/%s/%s/close", p, s.Id, id)
+			mqtt.Client.Publish(topic, 0, false, err.Error())
+		}
+
+		//从池中清除
+		incomingConnections.Delete(id)
+	}
 
 	return gnet.None
 }

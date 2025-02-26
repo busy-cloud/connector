@@ -1,27 +1,16 @@
 package connect
 
 import (
-	"github.com/busy-cloud/connector/types"
-	"io"
+	"github.com/panjf2000/gnet/v2"
 	"sync"
 )
 
 var incomingConnections sync.Map //[string, io.ReadWriteCloser]
 
-type Incoming struct {
-	*types.Incoming
-
-	conn io.ReadWriteCloser
-}
-
-func (l *Incoming) Close() error {
-	return l.conn.Close()
-}
-
-func GetIncoming(id string) *Incoming {
+func GetIncoming(id string) gnet.Conn {
 	val, ok := incomingConnections.Load(id)
 	if ok {
-		return val.(*Incoming)
+		return val.(gnet.Conn)
 	}
 	return nil
 }
