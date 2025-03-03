@@ -23,99 +23,99 @@ func NewTcpServer(l *types.Linker) *TcpServer {
 	return c
 }
 
-func (c *TcpServer) Opened() bool {
-	return c.opened
+func (s *TcpServer) Opened() bool {
+	return s.opened
 }
 
-func (c *TcpServer) Connected() bool {
-	return c.Conn != nil
+func (s *TcpServer) Connected() bool {
+	return s.Conn != nil
 }
 
-func (c *TcpServer) Open() (err error) {
-	if c.opened {
+func (s *TcpServer) Open() (err error) {
+	if s.opened {
 		//重复打开关闭上次连接
-		if c.listener != nil {
-			_ = c.listener.Close()
+		if s.listener != nil {
+			_ = s.listener.Close()
 		}
-		if c.Conn != nil {
-			_ = c.Conn.Close()
+		if s.Conn != nil {
+			_ = s.Conn.Close()
 		}
 	}
 
-	//addr := fmt.Sprintf("%s:%d", c.Address, c.Port)
-	addr := fmt.Sprintf("%s:%d", "", c.Port)
-	c.listener, err = net.Listen("tcp", addr)
+	//addr := fmt.Sprintf("%s:%d", s.Address, s.Port)
+	addr := fmt.Sprintf("%s:%d", "", s.Port)
+	s.listener, err = net.Listen("tcp", addr)
 	if err != nil {
 		return
 	}
 
-	c.opened = true
-	go c.receive()
+	s.opened = true
+	go s.receive()
 
 	return
 }
 
-func (c *TcpServer) Close() error {
-	c.opened = false
+func (s *TcpServer) Close() error {
+	s.opened = false
 	var err error
-	if c.Conn != nil {
-		err = multierr.Append(err, c.Conn.Close())
+	if s.Conn != nil {
+		err = multierr.Append(err, s.Conn.Close())
 	}
-	if c.listener != nil {
-		err = multierr.Append(err, c.listener.Close())
+	if s.listener != nil {
+		err = multierr.Append(err, s.listener.Close())
 	}
 	return err
 }
 
-func (c *TcpServer) receive() {
+func (s *TcpServer) receive() {
 
 	var err error
-	for c.opened {
-		c.Conn, err = c.listener.Accept()
+	for s.opened {
+		s.Conn, err = s.listener.Accept()
 		if err != nil {
 			break
 		}
 
 		//连接
-		topicOpen := fmt.Sprintf("link/%s/open", c.Id)
-		mqtt.Publish(topicOpen, c.Conn.RemoteAddr().String())
-		if c.Protocol != "" {
-			topic := fmt.Sprintf("%s/%s/open", c.Protocol, c.Id)
-			mqtt.Publish(topic, c.Conn.RemoteAddr().String())
+		topicOpen := fmt.Sprintf("link/%s/open", s.Id)
+		mqtt.Publish(topicOpen, s.Conn.RemoteAddr().String())
+		if s.Protocol != "" {
+			topic := fmt.Sprintf("%s/%s/open", s.Protocol, s.Id)
+			mqtt.Publish(topic, s.Conn.RemoteAddr().String())
 		}
 
-		topicUp := fmt.Sprintf("link/%s/up", c.Id)
-		topicUpProtocol := fmt.Sprintf("%s/%s/up", c.Protocol, c.Id)
+		topicUp := fmt.Sprintf("link/%s/up", s.Id)
+		topicUpProtocol := fmt.Sprintf("%s/%s/up", s.Protocol, s.Id)
 
 		var n int
 		var e error
 		for {
-			n, e = c.Conn.Read(c.buf[:])
+			n, e = s.Conn.Read(s.buf[:])
 			if e != nil {
-				_ = c.Conn.Close()
-				c.Conn = nil
+				_ = s.Conn.Close()
+				s.Conn = nil
 				break
 			}
-			data := c.buf[:n]
+			data := s.buf[:n]
 			//mqtt.TcpServer.IsConnected()
 			//转发
 			mqtt.Publish(topicUp, data)
-			if c.Protocol != "" {
+			if s.Protocol != "" {
 				mqtt.Publish(topicUpProtocol, data)
 			}
 		}
 
 		//下线
-		topicClose := fmt.Sprintf("link/%s/close", c.Id)
+		topicClose := fmt.Sprintf("link/%s/close", s.Id)
 		mqtt.Publish(topicClose, e.Error())
-		if c.Protocol != "" {
-			topic := fmt.Sprintf("%s/%s/close", c.Protocol, c.Id)
-			mqtt.Publish(topic, c.SerialOptions.PortName)
+		if s.Protocol != "" {
+			topic := fmt.Sprintf("%s/%s/close", s.Protocol, s.Id)
+			mqtt.Publish(topic, s.SerialOptions.PortName)
 		}
 
-		c.Conn = nil
+		s.Conn = nil
 	}
 
-	_ = c.listener.Close()
-	c.listener = nil
+	_ = s.listener.Close()
+	s.listener = nil
 }
