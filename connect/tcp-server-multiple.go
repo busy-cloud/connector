@@ -1,6 +1,7 @@
 package connect
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/busy-cloud/boat/db"
 	"github.com/busy-cloud/boat/mqtt"
@@ -27,8 +28,8 @@ func NewTcpServerMultiple(l *types.Linker) *TcpServerMultiple {
 		Linker:   l,
 		children: make(map[string]net.Conn),
 	}
-	if server.IdRegex != "" {
-		server.regex, _ = regexp.Compile("^" + server.IdRegex + "$")
+	if server.RegisterOptions != nil && server.RegisterOptions.Regex != "" {
+		server.regex, _ = regexp.Compile("^" + server.RegisterOptions.Regex + "$")
 	}
 	if server.regex == nil {
 		server.regex = idReg
@@ -80,7 +81,7 @@ func (s *TcpServerMultiple) Close() error {
 	return err
 }
 
-func (s *TcpServerMultiple) receive(id string, conn net.Conn) {
+func (s *TcpServerMultiple) receive(id string, reg []byte, conn net.Conn) {
 	//从数据库中查询
 	var i types.Incoming
 	//xorm.ErrNotExist //db.Engine.Exist()
@@ -106,11 +107,11 @@ func (s *TcpServerMultiple) receive(id string, conn net.Conn) {
 	s.children[id] = conn
 
 	//连接
-	topic := fmt.Sprintf("link/%s/%s/open", s.Id, id)
-	mqtt.Publish(topic, conn.RemoteAddr().String())
+	topicOpen := fmt.Sprintf("link/%s/%s/open", s.Id, id)
+	mqtt.Publish(topicOpen, reg)
 	if i.Protocol != "" {
-		topic = fmt.Sprintf("%s/%s/%s/open", i.Protocol, s.Id, id)
-		mqtt.Publish(topic, conn.RemoteAddr().String())
+		topicOpen = fmt.Sprintf("%s/%s/%s/open", i.Protocol, s.Id, id)
+		mqtt.Publish(topicOpen, reg)
 	}
 
 	topicUp := fmt.Sprintf("link/%s/%s/up", s.Id, id)
@@ -141,7 +142,7 @@ func (s *TcpServerMultiple) receive(id string, conn net.Conn) {
 	mqtt.Publish(topicClose, e.Error())
 	if s.Protocol != "" {
 		topic := fmt.Sprintf("%s/%s/%s/close", s.Protocol, s.Id, id)
-		mqtt.Publish(topic, s.SerialOptions.PortName)
+		mqtt.Publish(topic, e.Error())
 	}
 }
 
@@ -159,7 +160,49 @@ func (s *TcpServerMultiple) accept() {
 			_ = conn.Close()
 			continue
 		}
-		id := string(s.buf[:n])
+		data := s.buf[:n]
+
+		if s.RegisterOptions != nil {
+			//去头
+			if s.RegisterOptions.Offset > 0 {
+				if int(s.RegisterOptions.Offset) > len(data) {
+					_, _ = conn.Write([]byte("id too small"))
+					_ = conn.Close()
+					continue
+				}
+				data = data[s.RegisterOptions.Offset:]
+			}
+			//取定长
+			if s.RegisterOptions.Length > 0 {
+				if int(s.RegisterOptions.Length) > len(data) {
+					_, _ = conn.Write([]byte("id too small"))
+					_ = conn.Close()
+					continue
+				}
+				data = data[:s.RegisterOptions.Length]
+			}
+		}
+
+		id := string(data)
+
+		//处理json包
+		if s.RegisterOptions != nil && s.RegisterOptions.Type == "json" {
+			var reg map[string]any
+			err = json.Unmarshal(data, &reg)
+			if err != nil {
+				_, _ = conn.Write([]byte(err.Error()))
+				_ = conn.Close()
+				continue
+			}
+
+			var ok bool
+			id, ok = reg[s.RegisterOptions.Field].(string)
+			if !ok {
+				_, _ = conn.Write([]byte("require field " + s.RegisterOptions.Field))
+				_ = conn.Close()
+				continue
+			}
+		}
 
 		//验证合法性
 		if !s.regex.MatchString(id) {
@@ -169,7 +212,7 @@ func (s *TcpServerMultiple) accept() {
 		}
 
 		//接口数据
-		go s.receive(id, conn)
+		go s.receive(id, s.buf[:n], conn)
 	}
 
 	_ = s.listener.Close()
