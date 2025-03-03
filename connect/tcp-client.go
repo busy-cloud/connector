@@ -1,6 +1,7 @@
 package connect
 
 import (
+	"errors"
 	"fmt"
 	"github.com/busy-cloud/boat/log"
 	"github.com/busy-cloud/boat/mqtt"
@@ -30,12 +31,9 @@ func (c *TcpClient) Connected() bool {
 	return c.Conn != nil
 }
 
-func (c *TcpClient) Open() (err error) {
-	if c.opened {
-		//重复打开关闭上次连接
-		if c.Conn != nil {
-			_ = c.Conn.Close()
-		}
+func (c *TcpClient) connect() (err error) {
+	if c.Conn != nil {
+		_ = c.Conn.Close()
 	}
 
 	//连接
@@ -44,14 +42,26 @@ func (c *TcpClient) Open() (err error) {
 	if err != nil {
 		return err
 	}
-	c.opened = true
+
 	go c.keep()
-	go c.receive()
+
+	return
+}
+
+func (c *TcpClient) Open() (err error) {
+	if c.opened {
+		return errors.New("already opened")
+	}
+	c.opened = true
+
+	go c.keep()
+
 	return
 }
 
 func (c *TcpClient) Close() (err error) {
-	c.opened = true
+	c.opened = false
+
 	if c.Conn != nil {
 		return c.Conn.Close()
 	}

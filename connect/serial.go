@@ -1,6 +1,7 @@
 package connect
 
 import (
+	"errors"
 	"fmt"
 	"github.com/busy-cloud/boat/log"
 	"github.com/busy-cloud/boat/mqtt"
@@ -19,7 +20,7 @@ type Serial struct {
 
 func NewSerial(l *types.Linker) *Serial {
 	s := &Serial{Linker: l}
-	go s.keep()
+	//go s.keep()
 	return s
 }
 
@@ -31,7 +32,11 @@ func (s *Serial) Connected() bool {
 	return s.Port != nil
 }
 
-func (s *Serial) Open() (err error) {
+func (s *Serial) connect() (err error) {
+	if s.Port != nil {
+		_ = s.Port.Close()
+	}
+
 	opts := serial.Mode{
 		BaudRate: s.SerialOptions.BaudRate,
 		DataBits: s.SerialOptions.DataBits,
@@ -51,15 +56,26 @@ func (s *Serial) Open() (err error) {
 		return err
 	}
 
-	s.opened = true
-	go s.keep()
 	go s.receive()
 
-	return nil
+	return
+}
+
+func (s *Serial) Open() (err error) {
+	if s.opened {
+		return errors.New("already open")
+	}
+	s.opened = true
+
+	//保持连接
+	go s.keep()
+
+	return s.connect()
 }
 
 func (s *Serial) Close() (err error) {
 	s.opened = false
+
 	if s.Port != nil {
 		return s.Port.Close()
 	}
@@ -74,7 +90,7 @@ func (s *Serial) keep() {
 			continue
 		}
 
-		err := s.Open()
+		err := s.connect()
 		if err != nil {
 			log.Error(err)
 		}
