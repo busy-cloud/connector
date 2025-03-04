@@ -105,6 +105,7 @@ func (s *TcpServerMultiple) receive(id string, reg []byte, conn net.Conn) {
 	}
 
 	s.children[id] = conn
+	incomingConnections.Store(id, conn)
 
 	//连接
 	topicOpen := fmt.Sprintf("link/%s/%s/open", s.Id, id)
@@ -144,6 +145,8 @@ func (s *TcpServerMultiple) receive(id string, reg []byte, conn net.Conn) {
 		topic := fmt.Sprintf("%s/%s/%s/close", s.Protocol, s.Id, id)
 		mqtt.Publish(topic, e.Error())
 	}
+
+	incomingConnections.Delete(id)
 }
 
 func (s *TcpServerMultiple) accept() {
