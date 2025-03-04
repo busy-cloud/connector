@@ -5,6 +5,7 @@ import (
 	"github.com/busy-cloud/boat/log"
 	"github.com/busy-cloud/connector/interfaces"
 	"github.com/busy-cloud/connector/types"
+	"io"
 )
 
 func Startup() error {
@@ -32,6 +33,13 @@ func Shutdown() error {
 	linkers.Range(func(key, value interface{}) bool {
 		linker := value.(interfaces.Linker)
 		_ = linker.Close()
+		return true
+	})
+	incomingConnections.Range(func(key, value any) bool {
+		conn := value.(io.ReadWriteCloser)
+		if conn != nil {
+			_ = conn.Close()
+		}
 		return true
 	})
 	return nil
