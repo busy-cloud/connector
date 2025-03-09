@@ -15,7 +15,7 @@ func Startup() error {
 
 	//加载连接器
 	var linkers []*types.Linker
-	err := db.Engine.Find(&linkers)
+	err := db.Engine().Find(&linkers)
 	if err != nil {
 		return err
 	}

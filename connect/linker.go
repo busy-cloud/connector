@@ -57,7 +57,7 @@ func FromLinker(l *types.Linker) error {
 
 func LoadLinker(id string) error {
 	var l types.Linker
-	has, err := db.Engine.ID(id).Get(&l)
+	has, err := db.Engine().ID(id).Get(&l)
 	if err != nil {
 		return err
 	}

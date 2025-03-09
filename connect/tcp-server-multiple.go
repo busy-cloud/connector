@@ -85,7 +85,7 @@ func (s *TcpServerMultiple) receive(id string, reg []byte, conn net.Conn) {
 	//从数据库中查询
 	var i types.Incoming
 	//xorm.ErrNotExist //db.Engine.Exist()
-	has, err := db.Engine.ID(id).Get(&i)
+	has, err := db.Engine().ID(id).Get(&i)
 	if err != nil {
 		_, _ = conn.Write([]byte(err.Error()))
 		_ = conn.Close()
@@ -96,7 +96,7 @@ func (s *TcpServerMultiple) receive(id string, reg []byte, conn net.Conn) {
 		i.Id = id
 		i.ServerId = s.Id
 		i.Protocol = s.Protocol //继承协议
-		_, err = db.Engine.InsertOne(&i)
+		_, err = db.Engine().InsertOne(&i)
 		if err != nil {
 			_, _ = conn.Write([]byte(err.Error()))
 			_ = conn.Close()
