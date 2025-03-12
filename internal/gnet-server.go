@@ -213,8 +213,9 @@ func (s *GNetServer) OnTraffic(conn gnet.Conn) (action gnet.Action) {
 		//查不到
 		if !has {
 			incoming.Id = id
-			incoming.ServerId = s.Id
+			incoming.LinkerId = s.Id
 			incoming.Protocol = s.Protocol //继承协议
+			incoming.ProtocolOptions = s.ProtocolOptions
 			_, err = db.Engine().InsertOne(&incoming)
 			if err != nil {
 				_, _ = conn.Write([]byte(err.Error()))

@@ -12,13 +12,13 @@ func init() {
 }
 
 type TcpIncoming struct {
-	Id              string        `json:"s.Id,omitempty" xorm:"pk"`
-	ServerId        string        `json:"server_s.Id,omitempty" xorm:"index"`
+	Id              string        `json:"id,omitempty" xorm:"pk"`
+	LinkerId        string        `json:"linker_id,omitempty" xorm:"index"`
 	Name            string        `json:"name,omitempty"`
-	Disabled        bool          `json:"disabled,omitempty"`               //禁用
-	Protocol        string        `json:"protocol,omitempty"`               //通讯协议
-	ProtocolOptions string        `json:"protocol_options,omitempty"`       //通讯协议
-	Created         time.Duration `json:"created,omitempty" xorm:"created"` //创建时间
+	Disabled        bool          `json:"disabled,omitempty"`                        //禁用
+	Protocol        string        `json:"protocol,omitempty"`                        //通讯协议
+	ProtocolOptions string        `json:"protocol_options,omitempty"`                //通讯协议
+	Created         time.Duration `json:"created,omitempty,omitzero" xorm:"created"` //创建时间
 
 	conn   net.Conn
 	closed bool
