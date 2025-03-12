@@ -111,6 +111,12 @@ func (s *TcpServerMultiple) receive(id string, reg []byte, conn net.Conn) {
 			_ = conn.Close()
 			return
 		}
+	} else {
+		if incoming.Disabled {
+			_, _ = conn.Write([]byte("disabled"))
+			_ = conn.Close()
+			return
+		}
 	}
 
 	s.children[id] = &incoming

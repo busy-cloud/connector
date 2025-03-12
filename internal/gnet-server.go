@@ -221,6 +221,11 @@ func (s *GNetServer) OnTraffic(conn gnet.Conn) (action gnet.Action) {
 				_, _ = conn.Write([]byte(err.Error()))
 				return gnet.Close
 			}
+		} else {
+			if incoming.Disabled {
+				_, _ = conn.Write([]byte("disabled"))
+				return gnet.Close
+			}
 		}
 		//incoming := TcpIncoming{TcpIncoming: &incoming, conn: conn}
 

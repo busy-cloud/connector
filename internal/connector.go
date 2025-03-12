@@ -17,6 +17,10 @@ func Startup() error {
 		return err
 	}
 	for _, linker := range linkers {
+		if linker.Disabled {
+			log.Info("linker %s is disabled", linker.Id)
+			continue
+		}
 		err := FromLinker(linker)
 		if err != nil {
 			log.Error(err)
