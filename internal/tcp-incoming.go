@@ -2,20 +2,11 @@ package internal
 
 import (
 	"github.com/busy-cloud/boat/db"
-	"io"
 	"sync"
 	"time"
 )
 
-var incomingConnections sync.Map //[string, io.ReadWriteCloser]
-
-func GetIncoming(id string) io.ReadWriteCloser {
-	val, ok := incomingConnections.Load(id)
-	if ok {
-		return val.(io.ReadWriteCloser)
-	}
-	return nil
-}
+var tcpIncoming sync.Map //[string, io.ReadWriteCloser]
 
 func init() {
 	db.Register(&TcpIncoming{})

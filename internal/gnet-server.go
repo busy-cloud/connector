@@ -111,7 +111,7 @@ func (s *GNetServer) OnClose(conn gnet.Conn, err error) (action gnet.Action) {
 	}
 	id := cc["id"]
 
-	last, ok := incomingConnections.Load(id)
+	last, ok := tcpIncoming.Load(id)
 	if !ok {
 		return gnet.None
 	}
@@ -128,7 +128,7 @@ func (s *GNetServer) OnClose(conn gnet.Conn, err error) (action gnet.Action) {
 		}
 
 		//从池中清除
-		incomingConnections.Delete(id)
+		tcpIncoming.Delete(id)
 	}
 
 	return gnet.None
@@ -224,7 +224,7 @@ func (s *GNetServer) OnTraffic(conn gnet.Conn) (action gnet.Action) {
 		}
 
 		//保存连接
-		incomingConnections.Store(id, conn)
+		tcpIncoming.Store(id, conn)
 
 		return gnet.None
 	}

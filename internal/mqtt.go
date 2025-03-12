@@ -25,7 +25,7 @@ func subscribe() {
 	//订阅数据变化，服务类型
 	mqtt.Subscribe("link/+/+/down", func(topic string, payload []byte) {
 		ss := strings.Split(topic, "/")
-		conn, ok := incomingConnections.Load(ss[2])
+		conn, ok := tcpIncoming.Load(ss[2])
 		if !ok {
 			return
 		}

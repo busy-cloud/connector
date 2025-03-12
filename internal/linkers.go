@@ -4,22 +4,21 @@ import (
 	"fmt"
 	"github.com/busy-cloud/boat/db"
 	"github.com/busy-cloud/boat/log"
-	"github.com/busy-cloud/connector/interfaces"
 	"sync"
 )
 
-var linkers sync.Map //[string, Linker]
+var linkers sync.Map //[string, Instance]
 
-func GetLinker(id string) interfaces.Linker {
+func GetLinker(id string) Instance {
 	val, ok := linkers.Load(id)
 	if ok {
-		return val.(interfaces.Linker)
+		return val.(Instance)
 	}
 	return nil
 }
 
 func FromLinker(l *Linker) error {
-	var linker interfaces.Linker
+	var linker Instance
 
 	switch l.Type {
 	case "serial":
@@ -39,7 +38,7 @@ func FromLinker(l *Linker) error {
 	//保存
 	val, loaded := linkers.LoadOrStore(l.Id, linker)
 	if loaded {
-		err := val.(interfaces.Linker).Close()
+		err := val.(Instance).Close()
 		if err != nil {
 			log.Error(err)
 		}
@@ -70,7 +69,7 @@ func LoadLinker(id string) error {
 func UnloadLinker(id string) error {
 	val, loaded := linkers.LoadAndDelete(id)
 	if loaded {
-		return val.(interfaces.Linker).Close()
+		return val.(Instance).Close()
 	}
 	return nil
 }

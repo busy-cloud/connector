@@ -54,7 +54,7 @@ func (c *UdpClient) receive() {
 	//连接
 	mqtt.Publish(topicOpen, c.Conn.RemoteAddr().String())
 
-	incomingConnections.Store(c.Id, c)
+	tcpIncoming.Store(c.Id, c)
 
 	var n int
 	var e error
@@ -74,5 +74,5 @@ func (c *UdpClient) receive() {
 	//下线
 	mqtt.Publish(topicClose, e.Error())
 
-	incomingConnections.Delete(c.Id)
+	tcpIncoming.Delete(c.Id)
 }

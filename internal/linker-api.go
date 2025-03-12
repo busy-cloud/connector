@@ -10,13 +10,13 @@ func init() {
 	api.Register("GET", "linker/list", curd.ApiList[Linker]())
 	api.Register("POST", "linker/search", curd.ApiSearch[Linker]())
 	api.Register("POST", "linker/create", curd.ApiCreate[Linker]())
-	api.Register("GET", "linker/:id", curd.ParseParamStringId, curd.ApiGet[Linker]())
-	api.Register("POST", "linker/:id", curd.ParseParamStringId, curd.ApiUpdate[Linker]("id", "name", "type", "address", "port", "serial", "id_regex", "disabled", "protocol", "protocol_options"))
-	api.Register("GET", "linker/:id/delete", curd.ParseParamStringId, curd.ApiDelete[Linker]())
-	api.Register("GET", "linker/:id/enable", curd.ParseParamStringId, curd.ApiDisable[Linker](false))
-	api.Register("GET", "linker/:id/disable", curd.ParseParamStringId, curd.ApiDisable[Linker](true))
-	api.Register("GET", "linker/:id/open", curd.ParseParamStringId, linkerOpen)
-	api.Register("GET", "linker/:id/close", curd.ParseParamStringId, linkerClose)
+	api.Register("GET", "linker/:id", curd.ApiGet[Linker]())
+	api.Register("POST", "linker/:id", curd.ApiUpdate[Linker]("id", "name", "type", "address", "port", "serial", "id_regex", "disabled", "protocol", "protocol_options"))
+	api.Register("GET", "linker/:id/delete", curd.ApiDelete[Linker]())
+	api.Register("GET", "linker/:id/enable", curd.ApiDisable[Linker](false))
+	api.Register("GET", "linker/:id/disable", curd.ApiDisable[Linker](true))
+	api.Register("GET", "linker/:id/open", linkerOpen)
+	api.Register("GET", "linker/:id/close", linkerClose)
 }
 
 func linkerClose(ctx *gin.Context) {

@@ -1,6 +1,6 @@
-package interfaces
+package internal
 
-type Linker interface {
+type Instance interface {
 	Open() error
 	Close() error
 	Opened() bool

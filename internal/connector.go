@@ -3,7 +3,6 @@ package internal
 import (
 	"github.com/busy-cloud/boat/db"
 	"github.com/busy-cloud/boat/log"
-	"github.com/busy-cloud/connector/interfaces"
 	"io"
 )
 
@@ -30,11 +29,11 @@ func Startup() error {
 
 func Shutdown() error {
 	linkers.Range(func(key, value interface{}) bool {
-		linker := value.(interfaces.Linker)
+		linker := value.(Instance)
 		_ = linker.Close()
 		return true
 	})
-	incomingConnections.Range(func(key, value any) bool {
+	tcpIncoming.Range(func(key, value any) bool {
 		conn := value.(io.ReadWriteCloser)
 		if conn != nil {
 			_ = conn.Close()
