@@ -90,7 +90,7 @@ func (c *TcpClient) receive() {
 	mqtt.Publish(topicOpen, c.Conn.RemoteAddr().String())
 	if c.Protocol != "" {
 		topic := fmt.Sprintf("%s/%s/open", c.Protocol, c.Id)
-		mqtt.Publish(topic, c.Conn.RemoteAddr().String())
+		mqtt.Publish(topic, c.ProtocolOptions)
 	}
 
 	topicUp := fmt.Sprintf("link/%s/up", c.Id)

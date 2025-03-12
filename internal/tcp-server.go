@@ -81,7 +81,7 @@ func (s *TcpServer) receive() {
 		mqtt.Publish(topicOpen, s.Conn.RemoteAddr().String())
 		if s.Protocol != "" {
 			topic := fmt.Sprintf("%s/%s/open", s.Protocol, s.Id)
-			mqtt.Publish(topic, s.Conn.RemoteAddr().String())
+			mqtt.Publish(topic, s.ProtocolOptions)
 		}
 
 		topicUp := fmt.Sprintf("link/%s/up", s.Id)

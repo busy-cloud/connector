@@ -229,11 +229,11 @@ func (s *GNetServer) OnTraffic(conn gnet.Conn) (action gnet.Action) {
 
 		//上线
 		topic := fmt.Sprintf("link/%s/%s/open", s.Id, id)
-		mqtt.Publish(topic, s.buf[:n])
+		mqtt.Publish(topic, data)
 		if incoming.Protocol != "" {
 			c["protocol"] = incoming.Protocol //协议也保存进去
 			topic = fmt.Sprintf("%s/%s/%s/open", incoming.Protocol, s.Id, id)
-			mqtt.Publish(topic, s.buf[:n])
+			mqtt.Publish(topic, incoming.ProtocolOptions)
 		}
 
 		//保存连接

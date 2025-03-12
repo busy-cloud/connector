@@ -104,7 +104,7 @@ func (s *Serial) receive() {
 	mqtt.Publish(topicOpen, s.SerialOptions.PortName)
 	if s.Protocol != "" {
 		topic := fmt.Sprintf("%s/%s/open", s.Protocol, s.Id)
-		mqtt.Publish(topic, s.SerialOptions.PortName)
+		mqtt.Publish(topic, s.ProtocolOptions)
 	}
 
 	//接收数据

@@ -121,7 +121,7 @@ func (s *TcpServerMultiple) receive(id string, reg []byte, conn net.Conn) {
 	mqtt.Publish(topicOpen, reg)
 	if incoming.Protocol != "" {
 		topicOpen = fmt.Sprintf("%s/%s/%s/open", incoming.Protocol, s.Id, id)
-		mqtt.Publish(topicOpen, reg)
+		mqtt.Publish(topicOpen, incoming.ProtocolOptions)
 	}
 
 	topicUp := fmt.Sprintf("link/%s/%s/up", s.Id, id)
