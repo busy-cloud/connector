@@ -12,13 +12,14 @@ func init() {
 type Linker struct {
 	Id              string           `json:"id,omitempty" xorm:"pk"`
 	Name            string           `json:"name,omitempty"`
-	Type            string           `json:"type,omitempty"`                         //serial tcp-client tcp-server
+	Type            string           `json:"type,omitempty"`                         //serial tcp-client tcp-server tcp-server-multiple tcp-incoming
 	Address         string           `json:"address,omitempty"`                      //地址，域名或IP
 	Port            uint16           `json:"port,omitempty"`                         //端口号
 	SerialOptions   *SerialOptions   `json:"serial_options,omitempty" xorm:"json"`   //串口参数
 	RegisterOptions *RegisterOptions `json:"register_options,omitempty" xorm:"json"` //注册包参数
 	Disabled        bool             `json:"disabled,omitempty"`                     //禁用
 	Protocol        string           `json:"protocol,omitempty"`                     //通讯协议
+	ProtocolOptions string           `json:"protocol_options,omitempty"`             //通讯协议参数
 	Created         time.Duration    `json:"created,omitempty" xorm:"created"`       //创建时间
 }
 

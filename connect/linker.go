@@ -32,7 +32,7 @@ func FromLinker(l *types.Linker) error {
 	case "tcp-server-multiple":
 		linker = NewTcpServerMultiple(l)
 	case "gnet-server":
-		linker = NewTcpServer(l)
+		linker = NewGNetServer(l)
 	default:
 		return fmt.Errorf("unknown connector type: %s", l.Type)
 	}
