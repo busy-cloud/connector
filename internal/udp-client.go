@@ -1,21 +1,20 @@
-package connect
+package internal
 
 import (
 	"fmt"
 	"github.com/busy-cloud/boat/mqtt"
-	"github.com/busy-cloud/connector/types"
 	"net"
 )
 
 type UdpClient struct {
-	*types.Linker
+	*Linker
 
 	net.Conn
 	buf    [4096]byte
 	opened bool
 }
 
-func NewUdpClient(l *types.Linker) *UdpClient {
+func NewUdpClient(l *Linker) *UdpClient {
 	c := &UdpClient{Linker: l}
 	return c
 }

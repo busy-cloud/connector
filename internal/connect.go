@@ -1,10 +1,9 @@
-package connect
+package internal
 
 import (
 	"github.com/busy-cloud/boat/db"
 	"github.com/busy-cloud/boat/log"
 	"github.com/busy-cloud/connector/interfaces"
-	"github.com/busy-cloud/connector/types"
 	"io"
 )
 
@@ -14,7 +13,7 @@ func Startup() error {
 	subscribe()
 
 	//加载连接器
-	var linkers []*types.Linker
+	var linkers []*Linker
 	err := db.Engine().Find(&linkers)
 	if err != nil {
 		return err

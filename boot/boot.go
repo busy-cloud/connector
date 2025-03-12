@@ -2,14 +2,13 @@ package boot
 
 import (
 	"github.com/busy-cloud/boat/boot"
-	_ "github.com/busy-cloud/connector/apis"
-	"github.com/busy-cloud/connector/connect"
+	"github.com/busy-cloud/connector/internal"
 )
 
 func init() {
 	boot.Register("connector", &boot.Task{
-		Startup:  connect.Startup,
-		Shutdown: connect.Shutdown,
+		Startup:  internal.Startup,
+		Shutdown: internal.Shutdown,
 		Depends:  []string{"log", "mqtt", "database"},
 	})
 }

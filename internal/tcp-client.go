@@ -1,24 +1,23 @@
-package connect
+package internal
 
 import (
 	"errors"
 	"fmt"
 	"github.com/busy-cloud/boat/log"
 	"github.com/busy-cloud/boat/mqtt"
-	"github.com/busy-cloud/connector/types"
 	"net"
 	"time"
 )
 
 type TcpClient struct {
-	*types.Linker
+	*Linker
 
 	net.Conn
 	buf    [4096]byte
 	opened bool
 }
 
-func NewTcpClient(l *types.Linker) *TcpClient {
+func NewTcpClient(l *Linker) *TcpClient {
 	c := &TcpClient{Linker: l}
 	return c
 }

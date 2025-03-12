@@ -1,18 +1,17 @@
-package connect
+package internal
 
 import (
 	"encoding/json"
 	"fmt"
 	"github.com/busy-cloud/boat/db"
 	"github.com/busy-cloud/boat/mqtt"
-	"github.com/busy-cloud/connector/types"
 	"go.uber.org/multierr"
 	"net"
 	"regexp"
 )
 
 type TcpServerMultiple struct {
-	*types.Linker
+	*Linker
 
 	buf    [4096]byte
 	opened bool
@@ -23,7 +22,7 @@ type TcpServerMultiple struct {
 	regex *regexp.Regexp
 }
 
-func NewTcpServerMultiple(l *types.Linker) *TcpServerMultiple {
+func NewTcpServerMultiple(l *Linker) *TcpServerMultiple {
 	server := &TcpServerMultiple{
 		Linker:   l,
 		children: make(map[string]net.Conn),
@@ -83,7 +82,7 @@ func (s *TcpServerMultiple) Close() error {
 
 func (s *TcpServerMultiple) receive(id string, reg []byte, conn net.Conn) {
 	//从数据库中查询
-	var i types.Incoming
+	var i TcpIncoming
 	//xorm.ErrNotExist //db.Engine.Exist()
 	has, err := db.Engine().ID(id).Get(&i)
 	if err != nil {

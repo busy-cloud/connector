@@ -1,4 +1,4 @@
-package connect
+package internal
 
 import (
 	"context"
@@ -7,7 +7,6 @@ import (
 	"github.com/busy-cloud/boat/db"
 	"github.com/busy-cloud/boat/log"
 	"github.com/busy-cloud/boat/mqtt"
-	"github.com/busy-cloud/connector/types"
 	"github.com/panjf2000/gnet/v2"
 	"regexp"
 	"sync/atomic"
@@ -17,7 +16,7 @@ import (
 var idReg = regexp.MustCompile(`^\w{2,128}$`)
 
 type GNetServer struct {
-	*types.Linker
+	*Linker
 
 	engine gnet.Engine //在Handler的OnBoot中复制
 
@@ -30,7 +29,7 @@ type GNetServer struct {
 	regex *regexp.Regexp
 }
 
-func NewGNetServer(l *types.Linker) *GNetServer {
+func NewGNetServer(l *Linker) *GNetServer {
 	server := &GNetServer{Linker: l}
 	if server.RegisterOptions != nil && server.RegisterOptions.Regex != "" {
 		server.regex, _ = regexp.Compile("^" + server.RegisterOptions.Regex + "$")
@@ -192,7 +191,7 @@ func (s *GNetServer) OnTraffic(conn gnet.Conn) (action gnet.Action) {
 		}
 
 		//从数据库中查询
-		var i types.Incoming
+		var i TcpIncoming
 		//xorm.ErrNotExist //db.Engine.Exist()
 		has, err := db.Engine().ID(id).Get(&i)
 		if err != nil {
@@ -210,7 +209,7 @@ func (s *GNetServer) OnTraffic(conn gnet.Conn) (action gnet.Action) {
 				return gnet.Close
 			}
 		}
-		//incoming := Incoming{Incoming: &i, conn: conn}
+		//incoming := TcpIncoming{TcpIncoming: &i, conn: conn}
 
 		c := map[string]interface{}{"id": id}
 		conn.SetContext(c)

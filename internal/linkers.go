@@ -1,11 +1,10 @@
-package connect
+package internal
 
 import (
 	"fmt"
 	"github.com/busy-cloud/boat/db"
 	"github.com/busy-cloud/boat/log"
 	"github.com/busy-cloud/connector/interfaces"
-	"github.com/busy-cloud/connector/types"
 	"sync"
 )
 
@@ -19,7 +18,7 @@ func GetLinker(id string) interfaces.Linker {
 	return nil
 }
 
-func FromLinker(l *types.Linker) error {
+func FromLinker(l *Linker) error {
 	var linker interfaces.Linker
 
 	switch l.Type {
@@ -56,7 +55,7 @@ func FromLinker(l *types.Linker) error {
 }
 
 func LoadLinker(id string) error {
-	var l types.Linker
+	var l Linker
 	has, err := db.Engine().ID(id).Get(&l)
 	if err != nil {
 		return err

@@ -1,15 +1,14 @@
-package connect
+package internal
 
 import (
 	"fmt"
 	"github.com/busy-cloud/boat/mqtt"
-	"github.com/busy-cloud/connector/types"
 	"go.uber.org/multierr"
 	"net"
 )
 
 type TcpServer struct {
-	*types.Linker
+	*Linker
 
 	net.Conn
 	buf    [4096]byte
@@ -18,7 +17,7 @@ type TcpServer struct {
 	listener net.Listener
 }
 
-func NewTcpServer(l *types.Linker) *TcpServer {
+func NewTcpServer(l *Linker) *TcpServer {
 	c := &TcpServer{Linker: l}
 	return c
 }

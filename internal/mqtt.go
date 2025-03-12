@@ -1,4 +1,4 @@
-package connect
+package internal
 
 import (
 	"github.com/busy-cloud/boat/mqtt"

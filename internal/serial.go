@@ -1,24 +1,23 @@
-package connect
+package internal
 
 import (
 	"errors"
 	"fmt"
 	"github.com/busy-cloud/boat/log"
 	"github.com/busy-cloud/boat/mqtt"
-	"github.com/busy-cloud/connector/types"
 	"go.bug.st/serial"
 	"time"
 )
 
 type Serial struct {
-	*types.Linker
+	*Linker
 
 	serial.Port
 	buf    [4096]byte
 	opened bool
 }
 
-func NewSerial(l *types.Linker) *Serial {
+func NewSerial(l *Linker) *Serial {
 	s := &Serial{Linker: l}
 	//go s.keep()
 	return s
