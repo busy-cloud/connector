@@ -67,6 +67,7 @@ func (s *TcpServer) Close() error {
 }
 
 func (s *TcpServer) receive() {
+	links.Store(s.Id, s)
 
 	var err error
 	for s.opened {
@@ -117,4 +118,6 @@ func (s *TcpServer) receive() {
 
 	_ = s.listener.Close()
 	s.listener = nil
+
+	links.Delete(s.Id)
 }

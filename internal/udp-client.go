@@ -47,14 +47,14 @@ func (c *UdpClient) Close() (err error) {
 }
 
 func (c *UdpClient) receive() {
+	links.Store(c.Id, c)
+
 	topicOpen := fmt.Sprintf("link/%s/open", c.Id)
 	topicUp := fmt.Sprintf("link/%s/up", c.Id)
 	topicClose := fmt.Sprintf("link/%s/close", c.Id)
 
 	//连接
 	mqtt.Publish(topicOpen, c.Conn.RemoteAddr().String())
-
-	tcpIncoming.Store(c.Id, c)
 
 	var n int
 	var e error
@@ -74,5 +74,5 @@ func (c *UdpClient) receive() {
 	//下线
 	mqtt.Publish(topicClose, e.Error())
 
-	tcpIncoming.Delete(c.Id)
+	links.Delete(c.Id)
 }

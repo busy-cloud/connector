@@ -83,6 +83,7 @@ func (c *TcpClient) keep() {
 }
 
 func (c *TcpClient) receive() {
+	links.Store(c.Id, c)
 
 	//连接
 	topicOpen := fmt.Sprintf("link/%s/open", c.Id)
@@ -119,4 +120,6 @@ func (c *TcpClient) receive() {
 		topic := fmt.Sprintf("%s/%s/close", c.Protocol, c.Id)
 		mqtt.Publish(topic, c.SerialOptions.PortName)
 	}
+
+	links.Delete(c.Id)
 }

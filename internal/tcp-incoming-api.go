@@ -1,10 +1,10 @@
 package internal
 
 import (
+	"errors"
 	"github.com/busy-cloud/boat/api"
 	"github.com/busy-cloud/boat/curd"
 	"github.com/gin-gonic/gin"
-	"io"
 )
 
 func init() {
@@ -12,23 +12,34 @@ func init() {
 	api.Register("POST", "tcp-incoming/create", curd.ApiCreate[TcpIncoming]())
 	api.Register("POST", "tcp-incoming/search", curd.ApiSearch[TcpIncoming]())
 	api.Register("GET", "tcp-incoming/:id", curd.ApiGet[TcpIncoming]())
-	api.Register("POST", "tcp-incoming/:id", curd.ApiUpdate[TcpIncoming]("id", "name", "disabled", "protocol", "protocol_options"))
-	api.Register("GET", "tcp-incoming/:id/delete", curd.ApiDelete[TcpIncoming]())
+
+	api.Register("POST", "tcp-incoming/:id", curd.ApiUpdateHook[TcpIncoming](nil, func(m *TcpIncoming) error {
+		return unloadIncoming(m.Id)
+	}, "id", "name", "disabled", "protocol", "protocol_options"))
+
+	api.Register("GET", "tcp-incoming/:id/delete", curd.ApiDeleteHook[TcpIncoming](nil, func(m *TcpIncoming) error {
+		return unloadIncoming(m.Id)
+	}))
+
 	api.Register("GET", "tcp-incoming/:id/enable", curd.ApiDisable[TcpIncoming](false))
-	api.Register("GET", "tcp-incoming/:id/disable", curd.ApiDisable[TcpIncoming](true))
+	api.Register("GET", "tcp-incoming/:id/disable", curd.ApiDisableHook[TcpIncoming](true, nil, func(id any) error {
+		return unloadIncoming(id.(string))
+	}))
+
 	api.Register("GET", "tcp-incoming/:id/close", incomingClose)
 }
 
-func incomingClose(ctx *gin.Context) {
-	c, ok := tcpIncoming.Load(ctx.Param("id"))
+func unloadIncoming(id string) error {
+	c, ok := links.LoadAndDelete(id)
 	if !ok {
-		api.Fail(ctx, "找不到连接")
-		return
+		return errors.New("tcp-incoming not found")
 	}
+	ti := c.(Link)
+	return ti.Close()
+}
 
-	ti := c.(io.ReadWriteCloser)
-
-	err := ti.Close()
+func incomingClose(ctx *gin.Context) {
+	err := unloadIncoming(ctx.Param("id"))
 	if err != nil {
 		api.Error(ctx, err)
 		return

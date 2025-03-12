@@ -1,8 +1,10 @@
 package internal
 
-type Instance interface {
+import "io"
+
+type Link interface {
+	io.ReadWriteCloser
 	Open() error
-	Close() error
 	Opened() bool
 	Connected() bool
 }

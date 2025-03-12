@@ -7,45 +7,45 @@ import (
 	"sync"
 )
 
-var linkers sync.Map //[string, Instance]
+var links sync.Map //[string, Link]
 
-func GetLinker(id string) Instance {
-	val, ok := linkers.Load(id)
+func GetLink(id string) Link {
+	val, ok := links.Load(id)
 	if ok {
-		return val.(Instance)
+		return val.(Link)
 	}
 	return nil
 }
 
 func FromLinker(l *Linker) error {
-	var linker Instance
+	var link Link
 
 	switch l.Type {
 	case "serial":
-		linker = NewSerial(l)
+		link = NewSerial(l)
 	case "tcp":
-		linker = NewTcpClient(l)
+		link = NewTcpClient(l)
 	case "tcp-server":
-		linker = NewTcpServer(l)
+		link = NewTcpServer(l)
 	case "tcp-server-multiple":
-		linker = NewTcpServerMultiple(l)
+		link = NewTcpServerMultiple(l)
 	case "gnet-server":
-		linker = NewGNetServer(l)
+		link = NewGNetServer(l)
 	default:
 		return fmt.Errorf("unknown connector type: %s", l.Type)
 	}
 
 	//保存
-	val, loaded := linkers.LoadOrStore(l.Id, linker)
+	val, loaded := links.LoadOrStore(l.Id, link)
 	if loaded {
-		err := val.(Instance).Close()
+		err := val.(Link).Close()
 		if err != nil {
 			log.Error(err)
 		}
 	}
 
 	//启动
-	err := linker.Open()
+	err := link.Open()
 	if err != nil {
 		return err
 	}
@@ -53,7 +53,7 @@ func FromLinker(l *Linker) error {
 	return nil
 }
 
-func LoadLinker(id string) error {
+func LoadLink(id string) error {
 	var l Linker
 	has, err := db.Engine().ID(id).Get(&l)
 	if err != nil {
@@ -66,10 +66,10 @@ func LoadLinker(id string) error {
 	return FromLinker(&l)
 }
 
-func UnloadLinker(id string) error {
-	val, loaded := linkers.LoadAndDelete(id)
+func UnloadLink(id string) error {
+	val, loaded := links.LoadAndDelete(id)
 	if loaded {
-		return val.(Instance).Close()
+		return val.(Link).Close()
 	}
 	return nil
 }

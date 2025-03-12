@@ -2,6 +2,7 @@ package internal
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/busy-cloud/boat/db"
 	"github.com/busy-cloud/boat/mqtt"
@@ -17,7 +18,7 @@ type TcpServerMultiple struct {
 	opened bool
 
 	listener net.Listener
-	children map[string]net.Conn
+	children map[string]*TcpIncoming
 
 	regex *regexp.Regexp
 }
@@ -25,7 +26,7 @@ type TcpServerMultiple struct {
 func NewTcpServerMultiple(l *Linker) *TcpServerMultiple {
 	server := &TcpServerMultiple{
 		Linker:   l,
-		children: make(map[string]net.Conn),
+		children: make(map[string]*TcpIncoming),
 	}
 	if server.RegisterOptions != nil && server.RegisterOptions.Regex != "" {
 		server.regex, _ = regexp.Compile("^" + server.RegisterOptions.Regex + "$")
@@ -34,6 +35,14 @@ func NewTcpServerMultiple(l *Linker) *TcpServerMultiple {
 		server.regex = idReg
 	}
 	return server
+}
+
+func (s *TcpServerMultiple) Read(p []byte) (n int, err error) {
+	return 0, errors.New("unsupported read")
+}
+
+func (s *TcpServerMultiple) Write(p []byte) (n int, err error) {
+	return 0, errors.New("unsupported write")
 }
 
 func (s *TcpServerMultiple) Opened() bool {
@@ -72,7 +81,7 @@ func (s *TcpServerMultiple) Close() error {
 	for _, conn := range s.children {
 		err = multierr.Append(err, conn.Close())
 	}
-	s.children = make(map[string]net.Conn)
+	s.children = make(map[string]*TcpIncoming)
 	if s.listener != nil {
 		err = multierr.Append(err, s.listener.Close())
 		s.listener = nil
@@ -82,9 +91,9 @@ func (s *TcpServerMultiple) Close() error {
 
 func (s *TcpServerMultiple) receive(id string, reg []byte, conn net.Conn) {
 	//从数据库中查询
-	var i TcpIncoming
+	var incoming TcpIncoming
 	//xorm.ErrNotExist //db.Engine.Exist()
-	has, err := db.Engine().ID(id).Get(&i)
+	has, err := db.Engine().ID(id).Get(&incoming)
 	if err != nil {
 		_, _ = conn.Write([]byte(err.Error()))
 		_ = conn.Close()
@@ -92,10 +101,10 @@ func (s *TcpServerMultiple) receive(id string, reg []byte, conn net.Conn) {
 	}
 	//查不到
 	if !has {
-		i.Id = id
-		i.ServerId = s.Id
-		i.Protocol = s.Protocol //继承协议
-		_, err = db.Engine().InsertOne(&i)
+		incoming.Id = id
+		incoming.ServerId = s.Id
+		incoming.Protocol = s.Protocol //继承协议
+		_, err = db.Engine().InsertOne(&incoming)
 		if err != nil {
 			_, _ = conn.Write([]byte(err.Error()))
 			_ = conn.Close()
@@ -103,14 +112,14 @@ func (s *TcpServerMultiple) receive(id string, reg []byte, conn net.Conn) {
 		}
 	}
 
-	s.children[id] = conn
-	tcpIncoming.Store(id, conn)
+	s.children[id] = &incoming
+	links.Store(id, &incoming)
 
 	//连接
 	topicOpen := fmt.Sprintf("link/%s/%s/open", s.Id, id)
 	mqtt.Publish(topicOpen, reg)
-	if i.Protocol != "" {
-		topicOpen = fmt.Sprintf("%s/%s/%s/open", i.Protocol, s.Id, id)
+	if incoming.Protocol != "" {
+		topicOpen = fmt.Sprintf("%s/%s/%s/open", incoming.Protocol, s.Id, id)
 		mqtt.Publish(topicOpen, reg)
 	}
 
@@ -124,12 +133,10 @@ func (s *TcpServerMultiple) receive(id string, reg []byte, conn net.Conn) {
 		n, e = conn.Read(buf)
 		if e != nil {
 			_ = conn.Close()
-			conn = nil
-			delete(s.children, id)
 			break
 		}
 
-		data := s.buf[:n]
+		data := buf[:n]
 		//转发
 		mqtt.Publish(topicUp, data)
 		if s.Protocol != "" {
@@ -145,7 +152,8 @@ func (s *TcpServerMultiple) receive(id string, reg []byte, conn net.Conn) {
 		mqtt.Publish(topic, e.Error())
 	}
 
-	tcpIncoming.Delete(id)
+	delete(s.children, id)
+	links.Delete(id)
 }
 
 func (s *TcpServerMultiple) accept() {
@@ -213,8 +221,8 @@ func (s *TcpServerMultiple) accept() {
 			continue
 		}
 
-		//接口数据
-		go s.receive(id, s.buf[:n], conn)
+		//开始接收数据
+		go s.receive(id, data, conn)
 	}
 
 	_ = s.listener.Close()

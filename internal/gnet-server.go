@@ -3,6 +3,7 @@ package internal
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/busy-cloud/boat/db"
 	"github.com/busy-cloud/boat/log"
@@ -18,7 +19,8 @@ var idReg = regexp.MustCompile(`^\w{2,128}$`)
 type GNetServer struct {
 	*Linker
 
-	engine gnet.Engine //在Handler的OnBoot中复制
+	engine   gnet.Engine //在Handler的OnBoot中复制
+	children map[string]*TcpIncoming
 
 	opened    bool
 	connected bool
@@ -30,7 +32,7 @@ type GNetServer struct {
 }
 
 func NewGNetServer(l *Linker) *GNetServer {
-	server := &GNetServer{Linker: l}
+	server := &GNetServer{Linker: l, children: make(map[string]*TcpIncoming)}
 	if server.RegisterOptions != nil && server.RegisterOptions.Regex != "" {
 		server.regex, _ = regexp.Compile("^" + server.RegisterOptions.Regex + "$")
 	}
@@ -38,6 +40,14 @@ func NewGNetServer(l *Linker) *GNetServer {
 		server.regex = idReg
 	}
 	return server
+}
+
+func (s *GNetServer) Read(p []byte) (n int, err error) {
+	return 0, errors.New("unsupported read")
+}
+
+func (s *GNetServer) Write(p []byte) (n int, err error) {
+	return 0, errors.New("unsupported write")
 }
 
 func (s *GNetServer) Opened() bool {
@@ -109,15 +119,15 @@ func (s *GNetServer) OnClose(conn gnet.Conn, err error) (action gnet.Action) {
 	if !ok {
 		return gnet.None
 	}
-	id := cc["id"]
+	id := cc["id"].(string)
 
-	last, ok := tcpIncoming.Load(id)
+	last, ok := links.Load(id)
 	if !ok {
 		return gnet.None
 	}
 
 	//同一连接才算关闭，应对移动网络抖动问题，新连接发起后，旧连接才关闭
-	if last != nil && last.(gnet.Conn) == conn {
+	if last != nil && last.(*TcpIncoming).conn == conn {
 		//下线
 		topic := fmt.Sprintf("link/%s/%s/close", s.Id, id)
 		mqtt.Publish(topic, err.Error())
@@ -128,7 +138,8 @@ func (s *GNetServer) OnClose(conn gnet.Conn, err error) (action gnet.Action) {
 		}
 
 		//从池中清除
-		tcpIncoming.Delete(id)
+		links.Delete(id)
+		delete(s.children, id)
 	}
 
 	return gnet.None
@@ -191,25 +202,26 @@ func (s *GNetServer) OnTraffic(conn gnet.Conn) (action gnet.Action) {
 		}
 
 		//从数据库中查询
-		var i TcpIncoming
+		var incoming TcpIncoming
+
 		//xorm.ErrNotExist //db.Engine.Exist()
-		has, err := db.Engine().ID(id).Get(&i)
+		has, err := db.Engine().ID(id).Get(&incoming)
 		if err != nil {
 			_, _ = conn.Write([]byte(err.Error()))
 			return gnet.Close
 		}
 		//查不到
 		if !has {
-			i.Id = id
-			i.ServerId = s.Id
-			i.Protocol = s.Protocol //继承协议
-			_, err = db.Engine().InsertOne(&i)
+			incoming.Id = id
+			incoming.ServerId = s.Id
+			incoming.Protocol = s.Protocol //继承协议
+			_, err = db.Engine().InsertOne(&incoming)
 			if err != nil {
 				_, _ = conn.Write([]byte(err.Error()))
 				return gnet.Close
 			}
 		}
-		//incoming := TcpIncoming{TcpIncoming: &i, conn: conn}
+		//incoming := TcpIncoming{TcpIncoming: &incoming, conn: conn}
 
 		c := map[string]interface{}{"id": id}
 		conn.SetContext(c)
@@ -217,14 +229,15 @@ func (s *GNetServer) OnTraffic(conn gnet.Conn) (action gnet.Action) {
 		//上线
 		topic := fmt.Sprintf("link/%s/%s/open", s.Id, id)
 		mqtt.Publish(topic, s.buf[:n])
-		if i.Protocol != "" {
-			c["protocol"] = i.Protocol //协议也保存进去
-			topic = fmt.Sprintf("%s/%s/%s/open", i.Protocol, s.Id, id)
+		if incoming.Protocol != "" {
+			c["protocol"] = incoming.Protocol //协议也保存进去
+			topic = fmt.Sprintf("%s/%s/%s/open", incoming.Protocol, s.Id, id)
 			mqtt.Publish(topic, s.buf[:n])
 		}
 
 		//保存连接
-		tcpIncoming.Store(id, conn)
+		links.Store(id, &incoming)
+		s.children[id] = &incoming
 
 		return gnet.None
 	}
