@@ -19,7 +19,7 @@ type Linker struct {
 	RegisterOptions *RegisterOptions `json:"register_options,omitempty" xorm:"json"`    //注册包参数
 	Disabled        bool             `json:"disabled,omitempty"`                        //禁用
 	Protocol        string           `json:"protocol,omitempty"`                        //通讯协议
-	ProtocolOptions string           `json:"protocol_options,omitempty"`                //通讯协议参数
+	ProtocolOptions map[string]any   `json:"protocol_options,omitempty" xorm:"json"`    //通讯协议参数
 	Created         time.Duration    `json:"created,omitempty,omitzero" xorm:"created"` //创建时间
 }
 

@@ -5,12 +5,14 @@
     {
       "key": "id",
       "label": "ID",
-      "type": "text"
+      "type": "text",
+      "required": true
     },
     {
       "key": "name",
       "label": "名称",
-      "type": "text"
+      "type": "text",
+      "required": true
     },
     {
       "key": "type",
@@ -47,13 +49,135 @@
     {
       "key": "port",
       "label": "端口",
-      "type": "number"
+      "type": "number",
+      "required": true
+    },
+    {
+      "key": "serial_options",
+      "label": "串口参数",
+      "type": "object",
+      "children": [
+        {
+          "key": "port_name",
+          "label": "串口",
+          "type": "text"
+        },
+        {
+          "key": "baud_rate",
+          "label": "波特率",
+          "type": "number",
+          "default": 9600
+        },
+        {
+          "key": "data_bits",
+          "label": "字长",
+          "type": "number",
+          "default": 8
+        },
+        {
+          "key": "stop_bits",
+          "label": "结束符",
+          "type": "select",
+          "options": [
+            {
+              "value": 1,
+              "label": "1"
+            },
+            {
+              "disabled": true,
+              "value": 2,
+              "label": "1.5"
+            },
+            {
+              "value": 2,
+              "label": "2"
+            }
+          ]
+        },
+        {
+          "key": "parity_mode",
+          "label": "检验模式",
+          "type": "select",
+          "options": [
+            {
+              "value": 0,
+              "label": "None"
+            },
+            {
+              "value": 1,
+              "label": "Odd"
+            },
+            {
+              "value": 2,
+              "label": "Even"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "register_options",
+      "label": "注册参数",
+      "type": "object",
+      "children": [
+        {
+          "key": "type",
+          "label": "数据类型",
+          "type": "select",
+          "options": [
+            {
+              "value": "string",
+              "label": "字符串"
+            },
+            {
+              "value": "json",
+              "label": "JSON包"
+            }
+          ]
+        },
+        {
+          "key": "regex",
+          "label": "正则表达式",
+          "type": "text"
+        },
+        {
+          "key": "field",
+          "label": "JSON字段",
+          "type": "text"
+        },
+        {
+          "key": "offset",
+          "label": "偏移",
+          "type": "number"
+        },
+        {
+          "key": "length",
+          "label": "长度",
+          "type": "number"
+        }
+      ]
     },
     {
       "key": "protocol",
       "label": "协议",
-      "type": "text"
+      "type": "select",
+      "options": [],
+      "change_action": {
+        "type": "script",
+        "script": "setTimeout(()=>this.load_protocol_option(), 200)"
+      }
+    },
+    {
+      "key": "protocol_options",
+      "label": "协议参数",
+      "type": "object",
+      "children": []
     }
   ],
-  "submit_api": "connector/linker/create"
+  "submit_api": "connector/linker/create",
+  "mount": "this.load_protocols();",
+  "methods": {
+    "load_protocols": "this.request.get('iot/protocol/list').subscribe(res=>{this.content.fields[7].options=res.data.map(d=>{return {value:d.name,label:d.description}}); setTimeout(()=>this.load_protocol_option(), 200);  })",
+    "load_protocol_option": "this.editor.value.protocol && this.request.get('iot/protocol/'+this.editor.value.protocol+'/option').subscribe(res=>{this.content.fields[8].children=res.data.fields})"
+  }
 }

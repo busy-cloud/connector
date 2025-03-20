@@ -8,13 +8,19 @@
       "action": {
         "type": "page",
         "app": "connector",
-        "page": "linker-edit"
+        "page": "linker-create"
       }
     }
   ],
   "operators": [
     {
-      "label": "编辑"
+      "label": "编辑",
+      "action": {
+        "type": "page",
+        "app": "connector",
+        "page": "linker-edit",
+        "params_func": "return {id: data.id}"
+      }
     }
   ],
   "columns": [
