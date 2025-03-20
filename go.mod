@@ -3,7 +3,8 @@ module github.com/busy-cloud/connector
 go 1.23.0
 
 require (
-	github.com/busy-cloud/boat v0.1.2
+	github.com/busy-cloud/boat v0.2.0
+	github.com/busy-cloud/iot v0.1.8
 	github.com/busy-cloud/modbus v0.1.7
 	github.com/gin-gonic/gin v1.10.0
 	github.com/panjf2000/gnet/v2 v2.7.0
@@ -14,7 +15,6 @@ require (
 
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
-	github.com/busy-cloud/iot v0.1.8 // indirect
 	github.com/bytedance/sonic v1.12.10 // indirect
 	github.com/bytedance/sonic/loader v0.2.3 // indirect
 	github.com/cloudwego/base64x v0.1.5 // indirect

@@ -11,23 +11,30 @@ func init() {
 	api.Register("GET", "connector/serials", linkerSerials)
 	api.Register("GET", "connector/linker/list", curd.ApiListHook[Linker](getLinkersInfo))
 	api.Register("POST", "connector/linker/search", curd.ApiSearchHook[Linker](getLinkersInfo))
-	api.Register("POST", "connector/linker/create", curd.ApiCreateHook[Linker](nil, FromLinker))
+	api.Register("POST", "connector/linker/create", curd.ApiCreateHook[Linker](nil, func(m *Linker) error {
+		_ = FromLinker(m)
+		return nil
+	}))
 	api.Register("GET", "connector/linker/:id", curd.ApiGetHook[Linker](getLinkerInfo))
 
 	api.Register("POST", "connector/linker/:id", curd.ApiUpdateHook[Linker](nil, func(m *Linker) error {
-		return FromLinker(m)
+		_ = FromLinker(m)
+		return nil
 	}, "id", "name", "type", "address", "port", "serial_options", "register_options", "disabled", "protocol", "protocol_options"))
 
 	api.Register("GET", "connector/linker/:id/delete", curd.ApiDeleteHook[Linker](nil, func(m *Linker) error {
-		return UnloadLink(m.Id)
+		_ = UnloadLink(m.Id)
+		return nil
 	}))
 
 	api.Register("GET", "connector/linker/:id/enable", curd.ApiDisableHook[Linker](false, nil, func(id any) error {
-		return LoadLink(id.(string))
+		_ = LoadLink(id.(string))
+		return nil
 	}))
 
 	api.Register("GET", "connector/linker/:id/disable", curd.ApiDisableHook[Linker](true, nil, func(id any) error {
-		return UnloadLink(id.(string))
+		_ = UnloadLink(id.(string))
+		return nil
 	}))
 
 	api.Register("GET", "connector/linker/:id/open", linkerOpen)

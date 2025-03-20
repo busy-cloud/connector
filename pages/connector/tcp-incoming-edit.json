@@ -33,6 +33,7 @@
   ],
   "data_api": "connector/tcp-incoming/:id",
   "submit_api": "connector/tcp-incoming/:id",
+  "submit_success": "this.navigate('/page/connector/tcp-incoming-detail?id='+data.id)",
   "mount": "this.load_protocols();",
   "methods": {
     "load_protocols": "this.request.get('iot/protocol/list').subscribe(res=>{this.content.fields[2].options=res.data.map(d=>{return {value:d.name,label:d.description}}); setTimeout(()=>this.load_protocol_option(), 200);  })",

@@ -175,6 +175,7 @@
     }
   ],
   "submit_api": "connector/linker/create",
+  "submit_success": "this.navigate('/page/connector/linker-detail?id='+data.id)",
   "mount": "this.load_protocols(); this.load_serial_ports()",
   "methods": {
     "load_serial_ports": "this.request.get('connector/serials').subscribe(res=>{this.content.fields[5].children[0].options=res.data.map(d=>{return {value:d,label:d}}); })",

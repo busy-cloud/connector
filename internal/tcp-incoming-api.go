@@ -14,16 +14,19 @@ func init() {
 	api.Register("GET", "connector/tcp-incoming/:id", curd.ApiGetHook[TcpIncoming](getIncomingInfo))
 
 	api.Register("POST", "connector/tcp-incoming/:id", curd.ApiUpdateHook[TcpIncoming](nil, func(m *TcpIncoming) error {
-		return unloadIncoming(m.Id)
+		_ = unloadIncoming(m.Id)
+		return nil
 	}, "id", "name", "disabled", "protocol", "protocol_options"))
 
 	api.Register("GET", "connector/tcp-incoming/:id/delete", curd.ApiDeleteHook[TcpIncoming](nil, func(m *TcpIncoming) error {
-		return unloadIncoming(m.Id)
+		_ = unloadIncoming(m.Id)
+		return nil
 	}))
 
 	api.Register("GET", "connector/tcp-incoming/:id/enable", curd.ApiDisable[TcpIncoming](false))
 	api.Register("GET", "connector/tcp-incoming/:id/disable", curd.ApiDisableHook[TcpIncoming](true, nil, func(id any) error {
-		return unloadIncoming(id.(string))
+		_ = unloadIncoming(id.(string))
+		return nil
 	}))
 
 	api.Register("GET", "connector/tcp-incoming/:id/close", incomingClose)
