@@ -1,0 +1,78 @@
+{
+  "title": "TCP连接",
+  "template": "table",
+  "operators": [
+    {
+      "icon": "eye",
+      "action": {
+        "type": "page",
+        "app": "connector",
+        "page": "tcp-incoming-detail",
+        "params_func": "return {id: data.id}"
+      }
+    },
+    {
+      "icon": "edit",
+      "action": {
+        "type": "page",
+        "app": "connector",
+        "page": "tcp-incoming-edit",
+        "params_func": "return {id: data.id}"
+      }
+    },
+    {
+      "icon": "delete",
+      "title": "删除",
+      "confirm": "确认删除？",
+      "action": {
+        "type": "script",
+        "script": "this.request.get('connector/tcp-incoming/'+data.id+'/delete').subscribe(res=>{this.refresh()})"
+      }
+    }
+  ],
+  "columns": [
+    {
+      "key": "id",
+      "label": "ID",
+      "action": {
+        "type": "page",
+        "app": "connector",
+        "page": "tcp-incoming-detail",
+        "params_func": "return {id: data.id}"
+      }
+    },
+    {
+      "key": "linker_id",
+      "label": "连接ID",
+      "action": {
+        "type": "page",
+        "app": "connector",
+        "page": "linker-detail",
+        "params_func": "return {id: data.linker_id}"
+      }
+    },
+    {
+      "key": "name",
+      "label": "名称"
+    },
+    {
+      "key": "running",
+      "label": "运行",
+      "type": "boolean"
+    },
+    {
+      "key": "error",
+      "label": "错误"
+    },
+    {
+      "key": "protocol",
+      "label": "协议"
+    },
+    {
+      "key": "created",
+      "label": "日期",
+      "type": "date"
+    }
+  ],
+  "search_api": "connector/tcp-incoming/search"
+}

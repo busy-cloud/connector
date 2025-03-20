@@ -22,6 +22,24 @@
         "type": "script",
         "script": "this.request.get('connector/linker/'+data.id+'/delete').subscribe(res=>{this.navigate('/page/connector/linker')})"
       }
+    },
+    {
+      "icon": "play-circle",
+      "type": "button",
+      "label": "启动",
+      "action": {
+        "type": "script",
+        "script": "this.request.get('connector/linker/'+data.id+'/open').subscribe(res=>{this.load()})"
+      }
+    },
+    {
+      "icon": "stop",
+      "type": "button",
+      "label": "停止",
+      "action": {
+        "type": "script",
+        "script": "this.request.get('connector/linker/'+data.id+'/close').subscribe(res=>{this.load()})"
+      }
     }
   ],
   "items": [
@@ -76,5 +94,11 @@
       "label": "错误"
     }
   ],
-  "data_api": "connector/linker/:id"
+  "data_api": "connector/linker/:id",
+  "children": [
+    {
+      "title": "设备列表",
+      "template": "table"
+    }
+  ]
 }

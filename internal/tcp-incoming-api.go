@@ -47,7 +47,7 @@ func getIncomingInfo(d *TcpIncoming) error {
 func unloadIncoming(id string) error {
 	c, ok := links.LoadAndDelete(id)
 	if !ok {
-		return errors.New("connector/tcp-incoming not found")
+		return errors.New("找不到连接")
 	}
 	ti := c.(Link)
 	return ti.Close()

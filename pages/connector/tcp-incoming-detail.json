@@ -1,1 +1,82 @@
-{}
+{
+  "title": "TCP连接详情",
+  "template": "info",
+  "toolbar": [
+    {
+      "icon": "edit",
+      "type": "button",
+      "label": "编辑",
+      "action": {
+        "type": "page",
+        "app": "connector",
+        "page": "tcp-incoming-edit",
+        "params_func": "return {id: data.id}"
+      }
+    },
+    {
+      "icon": "delete",
+      "type": "button",
+      "label": "删除",
+      "confirm": "确认删除？",
+      "action": {
+        "type": "script",
+        "script": "this.request.get('connector/tcp-incoming/'+data.id+'/delete').subscribe(res=>{this.navigate('/page/connector/tcp-incoming')})"
+      }
+    },
+    {
+      "icon": "stop",
+      "type": "button",
+      "label": "停止",
+      "action": {
+        "type": "script",
+        "script": "this.request.get('connector/tcp-incoming/'+data.id+'/close').subscribe(res=>{this.load()})"
+      }
+    }
+  ],
+  "items": [
+    {
+      "key": "id",
+      "label": "ID"
+    },
+    {
+      "key": "linker_id",
+      "label": "连接ID",
+      "action": {
+        "type": "page",
+        "app": "connector",
+        "page": "linker-detail",
+        "params_func": "return {id: data.linker_id}"
+      }
+    },
+    {
+      "key": "name",
+      "label": "名称"
+    },
+    {
+      "key": "protocol",
+      "label": "协议",
+      "type": "text"
+    },
+    {
+      "key": "protocol_options",
+      "label": "协议参数",
+      "type": "object"
+    },
+    {
+      "key": "running",
+      "label": "运行",
+      "type": "boolean"
+    },
+    {
+      "key": "error",
+      "label": "错误"
+    }
+  ],
+  "data_api": "connector/tcp-incoming/:id",
+  "children": [
+    {
+      "title": "设备列表",
+      "template": "table"
+    }
+  ]
+}
