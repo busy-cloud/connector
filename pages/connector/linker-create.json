@@ -1,0 +1,59 @@
+{
+  "title": "创建连接",
+  "template": "form",
+  "fields": [
+    {
+      "key": "id",
+      "label": "ID",
+      "type": "text"
+    },
+    {
+      "key": "name",
+      "label": "名称",
+      "type": "text"
+    },
+    {
+      "key": "type",
+      "label": "类型",
+      "type": "select",
+      "options": [
+        {
+          "value": "serial",
+          "label": "串口"
+        },
+        {
+          "value": "tcp-client",
+          "label": "TCP客户端"
+        },
+        {
+          "value": "tcp-server",
+          "label": "TCP服务器"
+        },
+        {
+          "value": "tcp-server-multiple",
+          "label": "TCP服务器（多接入）"
+        },
+        {
+          "value": "gnet-server",
+          "label": "GNet高并发服务器"
+        }
+      ]
+    },
+    {
+      "key": "address",
+      "label": "地址",
+      "type": "text"
+    },
+    {
+      "key": "port",
+      "label": "端口",
+      "type": "number"
+    },
+    {
+      "key": "protocol",
+      "label": "协议",
+      "type": "text"
+    }
+  ],
+  "submit_api": "connector/linker/create"
+}

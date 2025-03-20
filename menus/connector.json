@@ -1,0 +1,15 @@
+{
+  "name": "连接管理",
+  "icon": "link",
+  "index": 300,
+  "items": [
+    {
+      "name": "连接器",
+      "url": "page/connector/linker"
+    },
+    {
+      "name": "TCP接入",
+      "url": "page/connector/tcp-incoming"
+    }
+  ]
+}

@@ -1,16 +1,33 @@
 package main
 
 import (
+	_ "github.com/busy-cloud/boat/apis" //boat的基本接口
 	"github.com/busy-cloud/boat/boot"
 	"github.com/busy-cloud/boat/log"
+	"github.com/busy-cloud/boat/menu"
+	"github.com/busy-cloud/boat/page"
 	"github.com/busy-cloud/boat/web"
 	_ "github.com/busy-cloud/connector/boot"
+	"github.com/spf13/viper"
 	"os"
 	"os/signal"
 	"syscall"
 )
 
+func init() {
+	//测试
+	page.Dir("pages", "")
+
+	menu.Dir("menus", "")
+}
+
 func main() {
+	viper.SetConfigName("connector")
+	//e := viper.SafeWriteConfig()
+	////e := viper.WriteConfig()
+	//if e != nil {
+	//	log.Error(e)
+	//}
 
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)

@@ -8,30 +8,30 @@ import (
 )
 
 func init() {
-	api.Register("GET", "linker/serials", linkerSerials)
-	api.Register("GET", "linker/list", curd.ApiList[Linker]())
-	api.Register("POST", "linker/search", curd.ApiSearch[Linker]())
-	api.Register("POST", "linker/create", curd.ApiCreateHook[Linker](nil, FromLinker))
-	api.Register("GET", "linker/:id", curd.ApiGet[Linker]())
+	api.Register("GET", "connector/linker/serials", linkerSerials)
+	api.Register("GET", "connector/linker/list", curd.ApiList[Linker]())
+	api.Register("POST", "connector/linker/search", curd.ApiSearch[Linker]())
+	api.Register("POST", "connector/linker/create", curd.ApiCreateHook[Linker](nil, FromLinker))
+	api.Register("GET", "connector/linker/:id", curd.ApiGet[Linker]())
 
-	api.Register("POST", "linker/:id", curd.ApiUpdateHook[Linker](nil, func(m *Linker) error {
+	api.Register("POST", "connector/linker/:id", curd.ApiUpdateHook[Linker](nil, func(m *Linker) error {
 		return FromLinker(m)
 	}, "id", "name", "type", "address", "port", "serial_options", "register_options", "disabled", "protocol", "protocol_options"))
 
-	api.Register("GET", "linker/:id/delete", curd.ApiDeleteHook[Linker](nil, func(m *Linker) error {
+	api.Register("GET", "connector/linker/:id/delete", curd.ApiDeleteHook[Linker](nil, func(m *Linker) error {
 		return UnloadLink(m.Id)
 	}))
 
-	api.Register("GET", "linker/:id/enable", curd.ApiDisableHook[Linker](false, nil, func(id any) error {
+	api.Register("GET", "connector/linker/:id/enable", curd.ApiDisableHook[Linker](false, nil, func(id any) error {
 		return LoadLink(id.(string))
 	}))
 
-	api.Register("GET", "linker/:id/disable", curd.ApiDisableHook[Linker](true, nil, func(id any) error {
+	api.Register("GET", "connector/linker/:id/disable", curd.ApiDisableHook[Linker](true, nil, func(id any) error {
 		return UnloadLink(id.(string))
 	}))
 
-	api.Register("GET", "linker/:id/open", linkerOpen)
-	api.Register("GET", "linker/:id/close", linkerClose)
+	api.Register("GET", "connector/linker/:id/open", linkerOpen)
+	api.Register("GET", "connector/linker/:id/close", linkerClose)
 }
 
 func linkerSerials(ctx *gin.Context) {

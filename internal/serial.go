@@ -36,6 +36,10 @@ func (s *Serial) connect() (err error) {
 		_ = s.Port.Close()
 	}
 
+	if s.SerialOptions == nil {
+		return errors.New("serial options is blank")
+	}
+
 	opts := serial.Mode{
 		BaudRate: s.SerialOptions.BaudRate,
 		DataBits: s.SerialOptions.DataBits,
