@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	api.Register("GET", "connector/linker/serials", linkerSerials)
+	api.Register("GET", "connector/serials", linkerSerials)
 	api.Register("GET", "connector/linker/list", curd.ApiListHook[Linker](getLinkersInfo))
 	api.Register("POST", "connector/linker/search", curd.ApiSearchHook[Linker](getLinkersInfo))
 	api.Register("POST", "connector/linker/create", curd.ApiCreateHook[Linker](nil, FromLinker))
