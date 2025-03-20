@@ -58,12 +58,17 @@ func (s *GNetServer) Connected() bool {
 	return s.connected
 }
 
+func (s *GNetServer) Error() string {
+	return s.Linker.Error
+}
+
 func (s *GNetServer) Open() error {
 	//handler := &GNetServer{Linker: s.Linker, GNetServer: s}
 	addr := fmt.Sprintf("tcp://:%d", s.Port)
 	log.Println("GNet Server Opening: ", addr)
 
 	go func() {
+		s.Linker.Error = ""
 		//这里全阻塞等待
 		err := gnet.Run(s, addr,
 			gnet.WithMulticore(true),
@@ -75,6 +80,7 @@ func (s *GNetServer) Open() error {
 		)
 		if err != nil {
 			log.Error(err)
+			s.Linker.Error = err.Error()
 		}
 	}()
 

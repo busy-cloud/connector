@@ -8,10 +8,10 @@ import (
 )
 
 func init() {
-	api.Register("GET", "connector/tcp-incoming/list", curd.ApiList[TcpIncoming]())
+	api.Register("GET", "connector/tcp-incoming/list", curd.ApiListHook[TcpIncoming](getIncomingsInfo))
 	api.Register("POST", "connector/tcp-incoming/create", curd.ApiCreate[TcpIncoming]())
-	api.Register("POST", "connector/tcp-incoming/search", curd.ApiSearch[TcpIncoming]())
-	api.Register("GET", "connector/tcp-incoming/:id", curd.ApiGet[TcpIncoming]())
+	api.Register("POST", "connector/tcp-incoming/search", curd.ApiSearchHook[TcpIncoming](getIncomingsInfo))
+	api.Register("GET", "connector/tcp-incoming/:id", curd.ApiGetHook[TcpIncoming](getIncomingInfo))
 
 	api.Register("POST", "connector/tcp-incoming/:id", curd.ApiUpdateHook[TcpIncoming](nil, func(m *TcpIncoming) error {
 		return unloadIncoming(m.Id)
@@ -27,6 +27,21 @@ func init() {
 	}))
 
 	api.Register("GET", "connector/tcp-incoming/:id/close", incomingClose)
+}
+
+func getIncomingsInfo(ds []*TcpIncoming) error {
+	for _, d := range ds {
+		_ = getIncomingInfo(d)
+	}
+	return nil
+}
+
+func getIncomingInfo(d *TcpIncoming) error {
+	l := GetLink(d.Id)
+	if l != nil {
+		d.Running = l.Connected()
+	}
+	return nil
 }
 
 func unloadIncoming(id string) error {

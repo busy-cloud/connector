@@ -7,4 +7,5 @@ type Link interface {
 	Open() error
 	Opened() bool
 	Connected() bool
+	Error() string
 }

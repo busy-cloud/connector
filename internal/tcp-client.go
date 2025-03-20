@@ -30,7 +30,19 @@ func (c *TcpClient) Connected() bool {
 	return c.Conn != nil
 }
 
+func (c *TcpClient) Error() string {
+	return c.Linker.Error
+}
+
 func (c *TcpClient) connect() (err error) {
+	defer func() {
+		if err != nil {
+			c.Linker.Error = err.Error()
+		} else {
+			c.Linker.Error = ""
+		}
+	}()
+
 	if c.Conn != nil {
 		_ = c.Conn.Close()
 	}

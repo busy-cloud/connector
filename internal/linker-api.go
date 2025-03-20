@@ -9,10 +9,10 @@ import (
 
 func init() {
 	api.Register("GET", "connector/linker/serials", linkerSerials)
-	api.Register("GET", "connector/linker/list", curd.ApiList[Linker]())
-	api.Register("POST", "connector/linker/search", curd.ApiSearch[Linker]())
+	api.Register("GET", "connector/linker/list", curd.ApiListHook[Linker](getLinkersInfo))
+	api.Register("POST", "connector/linker/search", curd.ApiSearchHook[Linker](getLinkersInfo))
 	api.Register("POST", "connector/linker/create", curd.ApiCreateHook[Linker](nil, FromLinker))
-	api.Register("GET", "connector/linker/:id", curd.ApiGet[Linker]())
+	api.Register("GET", "connector/linker/:id", curd.ApiGetHook[Linker](getLinkerInfo))
 
 	api.Register("POST", "connector/linker/:id", curd.ApiUpdateHook[Linker](nil, func(m *Linker) error {
 		return FromLinker(m)
@@ -32,6 +32,22 @@ func init() {
 
 	api.Register("GET", "connector/linker/:id/open", linkerOpen)
 	api.Register("GET", "connector/linker/:id/close", linkerClose)
+}
+
+func getLinkersInfo(ds []*Linker) error {
+	for _, d := range ds {
+		_ = getLinkerInfo(d)
+	}
+	return nil
+}
+
+func getLinkerInfo(d *Linker) error {
+	l := GetLink(d.Id)
+	if l != nil {
+		d.Running = l.Connected()
+		d.Error = l.Error()
+	}
+	return nil
 }
 
 func linkerSerials(ctx *gin.Context) {

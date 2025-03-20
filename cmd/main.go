@@ -7,7 +7,7 @@ import (
 	"github.com/busy-cloud/boat/menu"
 	"github.com/busy-cloud/boat/page"
 	"github.com/busy-cloud/boat/web"
-	_ "github.com/busy-cloud/connector/boot"
+	_ "github.com/busy-cloud/connector/internal"
 	"github.com/spf13/viper"
 	"os"
 	"os/signal"

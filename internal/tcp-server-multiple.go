@@ -53,7 +53,19 @@ func (s *TcpServerMultiple) Connected() bool {
 	return s.listener != nil
 }
 
+func (s *TcpServerMultiple) Error() string {
+	return s.Linker.Error
+}
+
 func (s *TcpServerMultiple) Open() (err error) {
+	defer func() {
+		if err != nil {
+			s.Linker.Error = err.Error()
+		} else {
+			s.Linker.Error = ""
+		}
+	}()
+
 	if s.opened {
 		_ = s.Close()
 	}

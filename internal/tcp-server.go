@@ -30,7 +30,19 @@ func (s *TcpServer) Connected() bool {
 	return s.Conn != nil
 }
 
+func (s *TcpServer) Error() string {
+	return s.Linker.Error
+}
+
 func (s *TcpServer) Open() (err error) {
+	defer func() {
+		if err != nil {
+			s.Linker.Error = err.Error()
+		} else {
+			s.Linker.Error = ""
+		}
+	}()
+
 	if s.opened {
 		//重复打开关闭上次连接
 		if s.listener != nil {

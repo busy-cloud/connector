@@ -21,6 +21,9 @@ type Linker struct {
 	Protocol        string           `json:"protocol,omitempty"`                        //通讯协议
 	ProtocolOptions map[string]any   `json:"protocol_options,omitempty" xorm:"json"`    //通讯协议参数
 	Created         time.Duration    `json:"created,omitempty,omitzero" xorm:"created"` //创建时间
+
+	Running bool   `json:"running,omitempty" xorm:"-"` //实时状态不入库
+	Error   string `json:"error,omitempty" xorm:"-"`   //实时状态不入库
 }
 
 type SerialOptions struct {

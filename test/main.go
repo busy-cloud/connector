@@ -8,7 +8,7 @@ import (
 	"github.com/busy-cloud/boat/page"
 	"github.com/busy-cloud/boat/smart"
 	"github.com/busy-cloud/boat/web"
-	_ "github.com/busy-cloud/connector/boot"
+	_ "github.com/busy-cloud/connector/internal"
 	"github.com/busy-cloud/iot/protocol"
 	_ "github.com/busy-cloud/modbus" //测试一个协议
 	"github.com/spf13/viper"

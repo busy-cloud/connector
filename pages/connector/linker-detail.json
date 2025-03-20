@@ -1,0 +1,80 @@
+{
+  "title": "连接详情",
+  "template": "info",
+  "toolbar": [
+    {
+      "icon": "edit",
+      "type": "button",
+      "label": "编辑",
+      "action": {
+        "type": "page",
+        "app": "connector",
+        "page": "linker-edit",
+        "params_func": "return {id: data.id}"
+      }
+    },
+    {
+      "icon": "delete",
+      "type": "button",
+      "label": "删除",
+      "confirm": "确认删除？",
+      "action": {
+        "type": "script",
+        "script": "this.request.get('connector/linker/'+data.id+'/delete').subscribe(res=>{this.navigate('/page/connector/linker')})"
+      }
+    }
+  ],
+  "items": [
+    {
+      "key": "id",
+      "label": "ID"
+    },
+    {
+      "key": "name",
+      "label": "名称"
+    },
+    {
+      "key": "type",
+      "label": "类型"
+    },
+    {
+      "key": "address",
+      "label": "地址"
+    },
+    {
+      "key": "port",
+      "label": "端口",
+      "type": "number"
+    },
+    {
+      "key": "serial_options",
+      "label": "串口参数",
+      "type": "object"
+    },
+    {
+      "key": "register_options",
+      "label": "注册参数",
+      "type": "object"
+    },
+    {
+      "key": "protocol",
+      "label": "协议",
+      "type": "text"
+    },
+    {
+      "key": "protocol_options",
+      "label": "协议参数",
+      "type": "object"
+    },
+    {
+      "key": "running",
+      "label": "运行",
+      "type": "boolean"
+    },
+    {
+      "key": "error",
+      "label": "错误"
+    }
+  ],
+  "data_api": "connector/linker/:id"
+}

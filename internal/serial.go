@@ -31,7 +31,19 @@ func (s *Serial) Connected() bool {
 	return s.Port != nil
 }
 
+func (s *Serial) Error() string {
+	return s.Linker.Error
+}
+
 func (s *Serial) connect() (err error) {
+	defer func() {
+		if err != nil {
+			s.Linker.Error = err.Error()
+		} else {
+			s.Linker.Error = ""
+		}
+	}()
+
 	if s.Port != nil {
 		_ = s.Port.Close()
 	}
