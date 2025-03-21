@@ -3,9 +3,9 @@ module github.com/busy-cloud/connector
 go 1.23.0
 
 require (
-	github.com/busy-cloud/boat v0.2.0
-	github.com/busy-cloud/iot v0.1.8
-	github.com/busy-cloud/modbus v0.1.7
+	github.com/busy-cloud/boat v0.2.1
+	github.com/busy-cloud/iot v0.2.0
+	github.com/busy-cloud/modbus v0.2.0
 	github.com/gin-gonic/gin v1.10.0
 	github.com/panjf2000/gnet/v2 v2.7.0
 	github.com/spf13/viper v1.19.0

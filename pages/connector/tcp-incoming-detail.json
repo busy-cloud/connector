@@ -75,8 +75,10 @@
   "data_api": "connector/tcp-incoming/:id",
   "children": [
     {
-      "title": "设备列表",
-      "template": "table"
+      "content": {
+        "title": "设备列表",
+        "template": "table"
+      }
     }
   ]
 }
