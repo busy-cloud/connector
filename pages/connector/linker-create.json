@@ -180,6 +180,6 @@
   "methods": {
     "load_serial_ports": "this.request.get('connector/serials').subscribe(res=>{this.content.fields[5].children[0].options=res.data.map(d=>{return {value:d,label:d}}); })",
     "load_protocols": "this.request.get('iot/protocol/list').subscribe(res=>{this.content.fields[7].options=res.data.map(d=>{return {value:d.name,label:d.description}}); setTimeout(()=>this.load_protocol_option(), 200);  })",
-    "load_protocol_option": "this.editor.value.protocol && this.request.get('iot/protocol/'+this.editor.value.protocol+'/option').subscribe(res=>{this.content.fields[8].children=res.data.fields})"
+    "load_protocol_option": "this.editor.value.protocol && this.request.get('iot/protocol/'+this.editor.value.protocol+'/option').subscribe(res=>{this.content.fields[8].children=res.data.fields; setTimeout(()=>this.editor.build(), 200)})"
   }
 }
