@@ -31,7 +31,7 @@
       "children": []
     }
   ],
-  "data_api": "connector/tcp-incoming/:id",
+  "load_api": "connector/tcp-incoming/:id",
   "submit_api": "connector/tcp-incoming/:id",
   "submit_success": "this.navigate('/page/connector/tcp-incoming-detail?id='+data.id)",
   "mount": "this.load_protocols();",

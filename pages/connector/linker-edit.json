@@ -174,7 +174,7 @@
       "children": []
     }
   ],
-  "data_api": "connector/linker/:id",
+  "load_api": "connector/linker/:id",
   "submit_api": "connector/linker/:id",
   "submit_success": "this.navigate('/page/connector/linker-detail?id='+data.id)",
   "mount": "this.load_protocols(); this.load_serial_ports()",

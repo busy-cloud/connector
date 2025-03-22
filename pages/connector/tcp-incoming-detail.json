@@ -72,7 +72,7 @@
       "label": "错误"
     }
   ],
-  "data_api": "connector/tcp-incoming/:id",
+  "load_api": "connector/tcp-incoming/:id",
   "children": [
     {
       "content": {

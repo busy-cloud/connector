@@ -94,7 +94,7 @@
       "label": "错误"
     }
   ],
-  "data_api": "connector/linker/:id",
+  "load_api": "connector/linker/:id",
   "children": [
     {
       "content": {
