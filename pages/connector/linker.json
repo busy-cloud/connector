@@ -4,6 +4,7 @@
   "toolbar": [
     {
       "label": "创建",
+      "icon": "plus",
       "type": "button",
       "action": {
         "type": "page",
