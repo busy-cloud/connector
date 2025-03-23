@@ -23,7 +23,7 @@ func FromLinker(l *Linker) error {
 	switch l.Type {
 	case "serial":
 		link = NewSerial(l)
-	case "tcp":
+	case "tcp-client":
 		link = NewTcpClient(l)
 	case "tcp-server":
 		link = NewTcpServer(l)

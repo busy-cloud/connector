@@ -3,6 +3,7 @@ package main
 import (
 	_ "github.com/busy-cloud/boat/apis" //boat的基本接口
 	"github.com/busy-cloud/boat/boot"
+	_ "github.com/busy-cloud/boat/broker"
 	"github.com/busy-cloud/boat/log"
 	"github.com/busy-cloud/boat/menu"
 	"github.com/busy-cloud/boat/page"

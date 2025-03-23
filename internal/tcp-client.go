@@ -54,7 +54,7 @@ func (c *TcpClient) connect() (err error) {
 		return err
 	}
 
-	go c.keep()
+	go c.receive()
 
 	return
 }
@@ -81,16 +81,14 @@ func (c *TcpClient) Close() (err error) {
 
 func (c *TcpClient) keep() {
 	for c.opened {
+		if c.Conn == nil {
+			err := c.connect()
+			if err != nil {
+				log.Error(err)
+			}
+		}
+
 		time.Sleep(time.Minute)
-
-		if c.Conn != nil {
-			continue
-		}
-
-		err := c.Open()
-		if err != nil {
-			log.Error(err)
-		}
 	}
 }
 
@@ -134,4 +132,7 @@ func (c *TcpClient) receive() {
 	}
 
 	links.Delete(c.Id)
+
+	//清空连接
+	c.Conn = nil
 }
