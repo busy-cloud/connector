@@ -1,0 +1,58 @@
+{
+  "title": "连接器",
+  "template": "table",
+  "toolbar": [
+    {
+      "key": "keyword",
+      "type": "text",
+      "placeholder": "请输入关键字"
+    },
+    {
+      "type": "button",
+      "icon": "search",
+      "label": "搜索",
+      "action": {
+        "type": "script",
+        "script": "this.keyword=this.toolbar.value.keyword; this.search()"
+      }
+    }
+  ],
+  "keywords": [
+    "id",
+    "name",
+    "description"
+  ],
+  "operators": [
+    {
+      "icon": "check",
+      "label": "选择",
+      "action": {
+        "type": "script",
+        "script": "this.modelRef.close(data)"
+      }
+    }
+  ],
+  "columns": [
+    {
+      "key": "id",
+      "label": "ID"
+    },
+    {
+      "key": "name",
+      "label": "名称"
+    },
+    {
+      "key": "type",
+      "label": "类型"
+    },
+    {
+      "key": "address",
+      "label": "地址"
+    },
+    {
+      "key": "port",
+      "label": "端口"
+    }
+  ],
+  "search_api": "connector/linker/search"
+}
