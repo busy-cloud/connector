@@ -73,3 +73,23 @@ func UnloadLink(id string) error {
 	}
 	return nil
 }
+
+func LoadLinkers() {
+	//加载连接器
+	var linkers []*Linker
+	err := db.Engine().Find(&linkers)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+	for _, linker := range linkers {
+		if linker.Disabled {
+			log.Info("linker %s is disabled", linker.Id)
+			continue
+		}
+		err := FromLinker(linker)
+		if err != nil {
+			log.Error(err)
+		}
+	}
+}
