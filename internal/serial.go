@@ -23,135 +23,136 @@ func NewSerial(l *Linker) *Serial {
 	return s
 }
 
-func (s *Serial) Opened() bool {
-	return s.opened
+func (c *Serial) Opened() bool {
+	return c.opened
 }
 
-func (s *Serial) Connected() bool {
-	return s.Port != nil
+func (c *Serial) Connected() bool {
+	return c.Port != nil
 }
 
-func (s *Serial) Error() string {
-	return s.Linker.Error
+func (c *Serial) Error() string {
+	return c.Linker.Error
 }
 
-func (s *Serial) connect() (err error) {
+func (c *Serial) connect() (err error) {
 	defer func() {
 		if err != nil {
-			s.Linker.Error = err.Error()
+			c.Linker.Error = err.Error()
 		} else {
-			s.Linker.Error = ""
+			c.Linker.Error = ""
 		}
 	}()
 
-	if s.Port != nil {
-		_ = s.Port.Close()
+	if c.Port != nil {
+		_ = c.Port.Close()
 	}
 
-	if s.SerialOptions == nil {
+	if c.SerialOptions == nil {
 		return errors.New("serial options is blank")
 	}
 
 	opts := serial.Mode{
-		BaudRate: s.SerialOptions.BaudRate,
-		DataBits: s.SerialOptions.DataBits,
-		StopBits: serial.StopBits(s.SerialOptions.StopBits),
-		Parity:   serial.Parity(s.SerialOptions.ParityMode),
+		BaudRate: c.SerialOptions.BaudRate,
+		DataBits: c.SerialOptions.DataBits,
+		StopBits: serial.StopBits(c.SerialOptions.StopBits),
+		Parity:   serial.Parity(c.SerialOptions.ParityMode),
 	}
 
-	log.Trace("create serial ", s.Address, opts)
-	s.Port, err = serial.Open(s.SerialOptions.PortName, &opts)
+	log.Trace("create serial ", c.Address, opts)
+	c.Port, err = serial.Open(c.SerialOptions.PortName, &opts)
 	if err != nil {
 		return err
 	}
 
 	//读超时
-	err = s.Port.SetReadTimeout(time.Second * 5)
+	err = c.Port.SetReadTimeout(time.Second * 5)
 	if err != nil {
 		return err
 	}
 
-	go s.receive()
+	go c.receive()
 
 	return
 }
 
-func (s *Serial) Open() (err error) {
-	if s.opened {
+func (c *Serial) Open() (err error) {
+	if c.opened {
 		return errors.New("already open")
 	}
-	s.opened = true
+	c.opened = true
 
 	//保持连接
-	go s.keep()
+	go c.keep()
 
-	return s.connect()
+	return c.connect()
 }
 
-func (s *Serial) Close() (err error) {
-	s.opened = false
+func (c *Serial) Close() (err error) {
+	c.opened = false
 
-	if s.Port != nil {
-		return s.Port.Close()
+	if c.Port != nil {
+		return c.Port.Close()
 	}
 	return nil
 }
 
-func (s *Serial) keep() {
-	for s.opened {
+func (c *Serial) keep() {
+	for c.opened {
 		time.Sleep(time.Minute)
 
-		if s.Port != nil {
-			continue
-		}
-
-		err := s.connect()
-		if err != nil {
-			log.Error(err)
+		if c.Port == nil {
+			err := c.connect()
+			if err != nil {
+				log.Error(err)
+			}
 		}
 	}
 }
 
-func (s *Serial) receive() {
-	links.Store(s.Id, s)
+func (c *Serial) receive() {
+	links.Store(c.Id, c)
 
 	//连接
-	topicOpen := fmt.Sprintf("link/%s/open", s.Id)
-	mqtt.Publish(topicOpen, s.SerialOptions.PortName)
-	if s.Protocol != "" {
-		topic := fmt.Sprintf("%s/%s/open", s.Protocol, s.Id)
-		mqtt.Publish(topic, s.ProtocolOptions)
+	topicOpen := fmt.Sprintf("link/%s/open", c.Id)
+	mqtt.Publish(topicOpen, c.SerialOptions.PortName)
+	if c.Protocol != "" {
+		topic := fmt.Sprintf("%s/%s/open", c.Protocol, c.Id)
+		mqtt.Publish(topic, c.ProtocolOptions)
 	}
 
 	//接收数据
-	topicUp := fmt.Sprintf("link/%s/up", s.Id)
-	topicUpProtocol := fmt.Sprintf("%s/%s/up", s.Protocol, s.Id)
+	topicUp := fmt.Sprintf("link/%s/up", c.Id)
+	topicUpProtocol := fmt.Sprintf("%s/%s/up", c.Protocol, c.Id)
 
 	var n int
 	var e error
 	for {
-		n, e = s.Port.Read(s.buf[:])
+		n, e = c.Port.Read(c.buf[:])
 		if e != nil {
-			_ = s.Port.Close()
-			s.Port = nil
+			_ = c.Port.Close()
+			c.Port = nil
 			break
 		}
-		data := s.buf[:n]
+		data := c.buf[:n]
 		//mqtt.TcpClient.IsConnected()
 		//转发
 		mqtt.Publish(topicUp, data)
-		if s.Protocol != "" {
+		if c.Protocol != "" {
 			mqtt.Publish(topicUpProtocol, data)
 		}
 	}
 
 	//下线
-	topicClose := fmt.Sprintf("link/%s/close", s.Id)
+	topicClose := fmt.Sprintf("link/%s/close", c.Id)
 	mqtt.Publish(topicClose, e.Error())
-	if s.Protocol != "" {
-		topic := fmt.Sprintf("%s/%s/close", s.Protocol, s.Id)
-		mqtt.Publish(topic, s.SerialOptions.PortName)
+	if c.Protocol != "" {
+		topic := fmt.Sprintf("%s/%s/close", c.Protocol, c.Id)
+		mqtt.Publish(topic, e.Error())
 	}
 
-	links.Delete(s.Id)
+	links.Delete(c.Id)
+
+	//清空连接
+	c.Port = nil
 }

@@ -65,9 +65,10 @@ func (c *TcpClient) Open() (err error) {
 	}
 	c.opened = true
 
+	//保持连接
 	go c.keep()
 
-	return
+	return c.connect()
 }
 
 func (c *TcpClient) Close() (err error) {
@@ -81,14 +82,14 @@ func (c *TcpClient) Close() (err error) {
 
 func (c *TcpClient) keep() {
 	for c.opened {
+		time.Sleep(time.Minute)
+
 		if c.Conn == nil {
 			err := c.connect()
 			if err != nil {
 				log.Error(err)
 			}
 		}
-
-		time.Sleep(time.Minute)
 	}
 }
 
@@ -103,8 +104,10 @@ func (c *TcpClient) receive() {
 		mqtt.Publish(topic, c.ProtocolOptions)
 	}
 
+	//接收数据
 	topicUp := fmt.Sprintf("link/%s/up", c.Id)
 	topicUpProtocol := fmt.Sprintf("%s/%s/up", c.Protocol, c.Id)
+
 	var n int
 	var e error
 	for {
@@ -128,7 +131,7 @@ func (c *TcpClient) receive() {
 	mqtt.Publish(topicClose, e.Error())
 	if c.Protocol != "" {
 		topic := fmt.Sprintf("%s/%s/close", c.Protocol, c.Id)
-		mqtt.Publish(topic, c.SerialOptions.PortName)
+		mqtt.Publish(topic, e.Error())
 	}
 
 	links.Delete(c.Id)
