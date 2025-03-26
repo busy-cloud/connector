@@ -44,18 +44,35 @@
     {
       "key": "address",
       "label": "地址",
-      "type": "text"
+      "type": "text",
+      "condition": {
+        "key": "type",
+        "type": "in",
+        "value": [
+          "tcp-client"
+        ]
+      }
     },
     {
       "key": "port",
       "label": "端口",
       "type": "number",
-      "required": true
+      "required": true,
+      "condition": {
+        "key": "type",
+        "type": "!=",
+        "value": "serial"
+      }
     },
     {
       "key": "serial_options",
       "label": "串口参数",
       "type": "object",
+      "condition": {
+        "key": "type",
+        "type": "==",
+        "value": "serial"
+      },
       "children": [
         {
           "key": "port_name",
@@ -119,6 +136,14 @@
       "key": "register_options",
       "label": "注册参数",
       "type": "object",
+      "condition": {
+        "key": "type",
+        "type": "in",
+        "value": [
+          "tcp-server-multiple",
+          "gnet-server"
+        ]
+      },
       "children": [
         {
           "key": "type",
