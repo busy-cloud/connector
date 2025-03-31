@@ -18,7 +18,7 @@ type TcpIncoming struct {
 	Disabled        bool           `json:"disabled,omitempty"`                        //禁用
 	Protocol        string         `json:"protocol,omitempty"`                        //通讯协议
 	ProtocolOptions map[string]any `json:"protocol_options,omitempty" xorm:"json"`    //通讯协议
-	Created         time.Duration  `json:"created,omitempty,omitzero" xorm:"created"` //创建时间
+	Created         time.Time      `json:"created,omitempty,omitzero" xorm:"created"` //创建时间
 
 	Running bool `json:"running,omitempty" xorm:"-"` //实时状态不入库
 
