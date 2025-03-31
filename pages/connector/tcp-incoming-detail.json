@@ -75,10 +75,9 @@
   "load_api": "connector/tcp-incoming/:id",
   "children": [
     {
-      "content": {
-        "title": "设备列表",
-        "template": "table"
-      }
+      "app": "connector",
+      "page": "device",
+      "params_func": "return {incoming_id: params.id}"
     }
   ]
 }
