@@ -7,10 +7,8 @@ import (
 	"github.com/busy-cloud/boat/log"
 	"github.com/busy-cloud/boat/menu"
 	"github.com/busy-cloud/boat/page"
-	"github.com/busy-cloud/boat/smart"
 	"github.com/busy-cloud/boat/web"
 	_ "github.com/busy-cloud/connector/internal"
-	"github.com/busy-cloud/iot/protocol"
 	_ "github.com/busy-cloud/modbus" //测试一个协议
 	"github.com/spf13/viper"
 	"os"
@@ -23,16 +21,6 @@ func init() {
 	page.Dir("pages", "")
 
 	menu.Dir("menus", "")
-
-	//测试用代码
-	protocol.Register(&protocol.Protocol{
-		Base: protocol.Base{
-			Name:        "test",
-			Description: "TEST",
-		},
-		Station: &smart.Form{Fields: []smart.Field{}},
-		Options: &smart.Form{Fields: []smart.Field{}},
-	})
 }
 
 func main() {
