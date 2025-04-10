@@ -3,13 +3,12 @@ module github.com/busy-cloud/connector
 go 1.23.0
 
 require (
-	github.com/busy-cloud/boat v0.2.14
-	github.com/busy-cloud/iot v0.2.10
-	github.com/busy-cloud/modbus v0.2.10
+	github.com/busy-cloud/boat v0.2.16
+	github.com/busy-cloud/modbus v0.2.12
+	github.com/busy-cloud/serial v1.6.5
 	github.com/gin-gonic/gin v1.10.0
 	github.com/panjf2000/gnet/v2 v2.7.0
 	github.com/spf13/viper v1.20.1
-	go.bug.st/serial v1.6.2
 	go.uber.org/multierr v1.11.0
 )
 
@@ -18,7 +17,6 @@ require (
 	github.com/bytedance/sonic v1.13.2 // indirect
 	github.com/bytedance/sonic/loader v0.2.4 // indirect
 	github.com/cloudwego/base64x v0.1.5 // indirect
-	github.com/creack/goselect v0.1.2 // indirect
 	github.com/ebitengine/purego v0.8.2 // indirect
 	github.com/eclipse/paho.mqtt.golang v1.5.0 // indirect
 	github.com/fsnotify/fsnotify v1.8.0 // indirect
@@ -35,6 +33,7 @@ require (
 	github.com/go-sql-driver/mysql v1.9.1 // indirect
 	github.com/go-viper/mapstructure/v2 v2.2.1 // indirect
 	github.com/goccy/go-json v0.10.5 // indirect
+	github.com/god-jason/iot-master v0.0.2 // indirect
 	github.com/golang-jwt/jwt/v5 v5.2.2 // indirect
 	github.com/golang/snappy v1.0.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
@@ -74,9 +73,11 @@ require (
 	github.com/ugorji/go/codec v1.2.12 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
+	github.com/zgwit/goselect v0.1.3 // indirect
 	go.uber.org/zap v1.27.0 // indirect
 	golang.org/x/arch v0.15.0 // indirect
 	golang.org/x/crypto v0.36.0 // indirect
+	golang.org/x/mod v0.24.0 // indirect
 	golang.org/x/net v0.38.0 // indirect
 	golang.org/x/sync v0.12.0 // indirect
 	golang.org/x/sys v0.31.0 // indirect

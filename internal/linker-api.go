@@ -3,8 +3,8 @@ package internal
 import (
 	"github.com/busy-cloud/boat/api"
 	"github.com/busy-cloud/boat/curd"
+	"github.com/busy-cloud/serial"
 	"github.com/gin-gonic/gin"
-	"go.bug.st/serial"
 )
 
 func init() {

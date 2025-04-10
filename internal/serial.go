@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/busy-cloud/boat/log"
 	"github.com/busy-cloud/boat/mqtt"
-	"go.bug.st/serial"
+	"github.com/busy-cloud/serial"
 	"time"
 )
 
