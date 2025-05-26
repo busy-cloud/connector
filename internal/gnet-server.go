@@ -247,6 +247,9 @@ func (s *GNetServer) OnTraffic(conn gnet.Conn) (action gnet.Action) {
 			mqtt.Publish(topic, incoming.ProtocolOptions)
 		}
 
+		//赋值连接
+		incoming.conn = conn
+
 		//保存连接
 		links.Store(id, &incoming)
 		s.children[id] = &incoming

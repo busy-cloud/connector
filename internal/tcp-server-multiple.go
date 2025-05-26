@@ -131,6 +131,9 @@ func (s *TcpServerMultiple) receive(id string, reg []byte, conn net.Conn) {
 		}
 	}
 
+	//赋值连接
+	incoming.conn = conn
+
 	s.children[id] = &incoming
 	links.Store(id, &incoming)
 
