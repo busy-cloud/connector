@@ -146,7 +146,7 @@ func (s *TcpServerMultiple) receive(id string, reg []byte, conn net.Conn) {
 	}
 
 	topicUp := fmt.Sprintf("link/%s/%s/up", s.Id, id)
-	topicUpProtocol := fmt.Sprintf("%s/%s/up", s.Protocol, s.Id)
+	topicUpProtocol := fmt.Sprintf("%s/%s/%s/up", s.Protocol, s.Id, id)
 
 	var n int
 	var e error
