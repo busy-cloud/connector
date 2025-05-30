@@ -9,7 +9,7 @@
       "action": {
         "type": "page",
         "app": "connector",
-        "page": "linker-edit",
+        "page": "connector/linker-edit",
         "params_func": "return {id: data.id}"
       }
     },
@@ -98,7 +98,7 @@
   "children": [
     {
       "app": "connector",
-      "page": "device",
+      "page": "connector/device",
       "params_func": "return {linker_id: params.id}"
     }
   ]

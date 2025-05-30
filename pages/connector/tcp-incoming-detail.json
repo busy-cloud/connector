@@ -9,7 +9,7 @@
       "action": {
         "type": "page",
         "app": "connector",
-        "page": "tcp-incoming-edit",
+        "page": "connector/tcp-incoming-edit",
         "params_func": "return {id: data.id}"
       }
     },
@@ -44,7 +44,7 @@
       "action": {
         "type": "page",
         "app": "connector",
-        "page": "linker-detail",
+        "page": "connector/linker-detail",
         "params_func": "return {id: data.linker_id}"
       }
     },
@@ -76,7 +76,7 @@
   "children": [
     {
       "app": "connector",
-      "page": "device",
+      "page": "connector/device",
       "params_func": "return {incoming_id: params.id}"
     }
   ]

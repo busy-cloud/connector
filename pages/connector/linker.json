@@ -9,7 +9,7 @@
       "action": {
         "type": "page",
         "app": "connector",
-        "page": "linker-create"
+        "page": "connector/linker-create"
       }
     },
     {
@@ -38,7 +38,7 @@
       "action": {
         "type": "page",
         "app": "connector",
-        "page": "linker-detail",
+        "page": "connector/linker-detail",
         "params_func": "return {id: data.id}"
       }
     },
@@ -47,7 +47,7 @@
       "action": {
         "type": "page",
         "app": "connector",
-        "page": "linker-edit",
+        "page": "connector/linker-edit",
         "params_func": "return {id: data.id}"
       }
     },
@@ -68,7 +68,7 @@
       "action": {
         "type": "page",
         "app": "connector",
-        "page": "linker-detail",
+        "page": "connector/linker-detail",
         "params_func": "return {id: data.id}"
       }
     },
