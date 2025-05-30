@@ -2,11 +2,10 @@ package main
 
 import (
 	_ "github.com/busy-cloud/boat/apis" //boat的基本接口
+	"github.com/busy-cloud/boat/apps"
 	"github.com/busy-cloud/boat/boot"
 	_ "github.com/busy-cloud/boat/broker"
 	"github.com/busy-cloud/boat/log"
-	"github.com/busy-cloud/boat/menu"
-	"github.com/busy-cloud/boat/page"
 	"github.com/busy-cloud/boat/web"
 	_ "github.com/busy-cloud/connector/internal"
 	_ "github.com/busy-cloud/modbus" //测试一个协议
@@ -18,9 +17,7 @@ import (
 
 func init() {
 	//测试
-	page.Dir("pages", "")
-
-	menu.Dir("menus", "")
+	apps.Pages().Dir("pages", "")
 }
 
 func main() {

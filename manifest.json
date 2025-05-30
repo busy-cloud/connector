@@ -1,0 +1,24 @@
+{
+  "id": "connector",
+  "name": "连接器",
+  "description": "连接器",
+  "version": "v0.0.1",
+  "menus": [
+    {
+      "name": "连接管理",
+      "icon": "link",
+      "index": 300,
+      "items": [
+        {
+          "name": "连接器",
+          "url": "page/connector/linker"
+        },
+        {
+          "name": "TCP连接",
+          "url": "page/connector/tcp-incoming"
+        }
+      ]
+    }
+  ],
+  "pages": "pages"
+}

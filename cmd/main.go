@@ -4,8 +4,6 @@ import (
 	_ "github.com/busy-cloud/boat/apis" //boat的基本接口
 	"github.com/busy-cloud/boat/boot"
 	"github.com/busy-cloud/boat/log"
-	"github.com/busy-cloud/boat/menu"
-	"github.com/busy-cloud/boat/page"
 	"github.com/busy-cloud/boat/web"
 	_ "github.com/busy-cloud/connector/internal"
 	"github.com/spf13/viper"
@@ -13,13 +11,6 @@ import (
 	"os/signal"
 	"syscall"
 )
-
-func init() {
-	//测试
-	page.Dir("pages", "")
-
-	menu.Dir("menus", "")
-}
 
 func main() {
 	viper.SetConfigName("connector")
