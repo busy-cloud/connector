@@ -3,7 +3,7 @@ module github.com/busy-cloud/connector
 go 1.23.0
 
 require (
-	github.com/busy-cloud/boat v0.4.4
+	github.com/busy-cloud/boat v0.4.5
 	github.com/busy-cloud/modbus v0.2.12
 	github.com/busy-cloud/serial v1.6.5
 	github.com/gin-gonic/gin v1.10.1

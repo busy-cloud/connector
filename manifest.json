@@ -1,21 +1,31 @@
 {
   "id": "connector",
+  "icon": "link.png",
   "name": "连接器",
   "description": "连接器",
   "version": "v0.0.1",
+  "shortcuts": [
+    {
+      "name": "连接器",
+      "url": "page/connector/linker",
+      "icon": "link.png"
+    }
+  ],
   "menus": [
     {
       "name": "连接管理",
-      "icon": "link",
+      "nz-icon": "link",
       "index": 300,
       "items": [
         {
           "name": "连接器",
-          "url": "page/connector/linker"
+          "url": "page/connector/linker",
+          "icon": "link.png"
         },
         {
           "name": "TCP连接",
-          "url": "page/connector/tcp-incoming"
+          "url": "page/connector/tcp-incoming",
+          "icon": "tcp.png"
         }
       ]
     }
