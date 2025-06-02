@@ -4,6 +4,7 @@ gitea.com/xorm/sqlfiddle v0.0.0-20180821085327-62ce714f951a h1:lSA0F4e9A2NcQSqGq
 gitea.com/xorm/sqlfiddle v0.0.0-20180821085327-62ce714f951a/go.mod h1:EXuID2Zs0pAQhH8yz+DNjUbjppKQzKFAn28TMYPB6IU=
 github.com/busy-cloud/boat v0.4.5 h1:qM0KrZFIEstn6SWpJWn/iovfvXrU5nPTYqL8COV+b9s=
 github.com/busy-cloud/boat v0.4.5/go.mod h1:egfN3TMsxStSJYRIyAdtB2cO4VyJk/H1tgnoNnSNd4s=
+github.com/busy-cloud/boat v0.4.10/go.mod h1:h+VydXbOv0mKhZq/i7N44ROVAVYgimSDvU7Jn7yRt+g=
 github.com/busy-cloud/modbus v0.2.12 h1:XPF/06cQt993itzGHSsZmRsVNv6qIzXxAd5n9Ui13po=
 github.com/busy-cloud/modbus v0.2.12/go.mod h1:voMqngF86wuY2p4BWf7wfI/5xsmDrRLuVBfjhYqijm8=
 github.com/busy-cloud/serial v1.6.5 h1:rDq99/cEDFUfZNJ0WmI/6iZz7LvmEDQcyw2gibhLI/E=
