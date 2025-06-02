@@ -14,7 +14,7 @@
   "menus": [
     {
       "name": "连接管理",
-      "nz-icon": "link",
+      "nz_icon": "link",
       "index": 300,
       "items": [
         {
