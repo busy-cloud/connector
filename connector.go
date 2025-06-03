@@ -12,7 +12,7 @@ import (
 //go:embed assets
 var assets embed.FS
 
-//go:embed assets
+//go:embed pages
 var pages embed.FS
 
 //go:embed manifest.json
